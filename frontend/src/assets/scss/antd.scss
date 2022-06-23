@@ -1,0 +1,21 @@
+@import "./color.scss";
+
+.ant-select.select-custom {
+  width: 100%;
+}
+
+.ant-picker {
+  width: 100%;
+}
+
+.ant-input-number {
+  width: 100% !important;
+}
+
+label.ant-radio-wrapper {
+  align-items: center;
+}
+
+label.ant-checkbox-wrapper {
+  align-items: center;
+}

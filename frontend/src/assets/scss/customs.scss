@@ -1,0 +1,81 @@
+@import "./color.scss";
+
+.body-page {
+  background-color: white;
+  padding: 25px;
+  min-height: calc(100vh - 135px);
+}
+
+//----text editor custom ----//
+.text-editor-custom {
+  .ProseMirror {
+    padding: 25px;
+    border: 1px solid $grey_2;
+  }
+}
+
+.title-tool {
+  border: 1px solid $grey_2;
+  border-radius: 5px 5px 0 0;
+  padding: 5px;
+}
+
+.ql-editor {
+  font-size: 16px;
+  min-height: 150px;
+}
+
+.ql-toolbar.ql-snow {
+  border-radius: 5px 5px 0 0;
+}
+.ql-container.ql-snow {
+  border-radius: 0 0 5px 5px;
+  border-top: none;
+}
+
+.infomation{
+  h1{
+    margin-left: 20px;
+    font-size: 3vw;
+    margin-bottom: 0px;
+  }
+}
+.card-login {
+  background-color: $primary;
+  margin: 20px;
+  border-radius: 5px;
+  padding: 25px;
+  height: calc(100vh - 40px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  h1 {
+    font-size: 1000em;
+    // margin-bottom: 65px;
+    margin: 0;
+    color: white;
+    
+  }
+  h2 {
+    font-size: 500em;
+    // margin-bottom: 65px;
+    margin: 0;
+    color: white;
+    
+  }
+  h3 {
+    font-size: 250em;
+    // margin-bottom: 65px;
+    margin: 0;
+    color: white;
+    
+  }
+  p {
+    margin-left: 20px;
+    font-size: 22px;
+    margin-top: -5px;
+    margin-bottom: -8px;
+  }
+
+}
