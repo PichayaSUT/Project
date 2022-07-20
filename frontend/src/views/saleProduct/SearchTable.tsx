@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { SaleProductInterface } from "./InterfaceSaleProducts"
+import { searchProduct } from "./InterfaceSaleProducts"
 import { AutoComplete, Button, Col, Divider, Input, Radio, Row, SelectProps, Table } from "antd";
 import { DashboardFilled, SearchOutlined } from "@ant-design/icons";
 
-export function Search_table(){
-	const [data , setData] = useState<SaleProductInterface[]>([]);
+export function SearchTable(){
+	const [data , setData] = useState<searchProduct[]>([]);
 	const [value , setValue] = useState('');
 	const [options, setOptions] = useState<SelectProps<object>['options']>([]);
 	const [searchButton, setSearchButton] = useState(0);
@@ -96,13 +96,13 @@ export function Search_table(){
 		},
 		{
 			title: "ราคา",
-			dataIndex : "price_sell",
-			key : "price_sell",
+			dataIndex : "priceSell",
+			key : "priceSell",
 		},
 		{
-			title: "limit_amount",
-			dataIndex : "limit_amount",
-			key : "limit_amount",
+			title: "limitAmount",
+			dataIndex : "limitAmount",
+			key : "limitAmount",
 		},
 		{
 			title: "จำนวนที่มี",

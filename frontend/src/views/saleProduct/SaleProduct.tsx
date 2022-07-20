@@ -1,10 +1,9 @@
-import React, { Component, useState } from 'react';
-import { Card, Drawer, message, Result, Statistic, Steps, Image, InputNumber, SelectProps, Popconfirm } from 'antd';
-import { Input, Table, Tag, Space, Row, Col, Radio, Divider, Button, Modal, AutoComplete } from 'antd';
-import { CalendarOutlined, DeleteFilled, PlusOutlined, PrinterOutlined, SearchOutlined, SnippetsOutlined, UserOutlined } from '@ant-design/icons';
-import { API, DataType, Discount, SaleProductInterface, TableMain } from './InterfaceSaleProducts';
-import Sale_table from './sale_table';
-import { callAPI } from './API';
+import React, { ReactFragment, useState } from 'react'
+import { Card, Drawer, message, Result, Statistic, Image, InputNumber, SelectProps, Popconfirm } from 'antd'
+import { Input, Table, Space, Row, Col, Radio, Divider, Button, Modal, AutoComplete } from 'antd'
+import { CalendarOutlined, PlusOutlined, PrinterOutlined, SearchOutlined, ShoppingCartOutlined, SnippetsOutlined, UserOutlined } from '@ant-design/icons'
+import { API, DataType, Discount, TableMain, TableSeach } from './InterfaceSaleProducts'
+import { productID, searchFromID } from './API'
 
 //--------------------------------------------------------------------------------------------------------
 const D = new Date()
@@ -13,210 +12,30 @@ const month = D.getMonth() + 1
 const year = D.getFullYear()
 const timeHours = D.getUTCHours() + 7
 const timeMin = D.getMinutes()
-const { Step } = Steps;
-
-//--------------------------------------------------------------------------------------------------------
 
 
-const columnsSearch = [
-	{
-		title: "รหัสสินค้า",
-		dataIndex: "id",
-		key: "id",
-	},
-	{
-		title: "ชื่อสินค้า",
-		dataIndex: "name",
-		key: "name",
-	},
-	{
-		title: "ราคา",
-		dataIndex: "price_sell",
-		key: "price_sell",
-	},
-	{
-		title: "limit_amount",
-		dataIndex: "limit_amount",
-		key: "limit_amount",
-	},
-	{
-		title: "จำนวนที่มี",
-		dataIndex: "amount",
-		key: "amount",
-	},
-	{
-		title: "สถานะ",
-		dataIndex: "status",
-		key: "status",
-	},
-
-];
-//--------------------------------------------------------------------------------------------------------
-const columnsTotal = [
-	{
-		title: 'ลำดับ',
-		dataIndex: 'List',
-
-	},
-	{
-		title: 'สินค้า',
-		dataIndex: 'Product',
-
-	},
-	{
-		title: 'จำนวน',
-		dataIndex: 'Amount',
-
-	},
-	{
-		title: 'ราคาต่อหน่วย(บาท)',
-		dataIndex: 'PriceForPiece',
-
-	},
-	{
-		title: 'ส่วนลด',
-		dataIndex: 'Discount',
-
-	},
-	{
-		title: 'ราคา(บาท)',
-		dataIndex: 'Price',
-	},
-
-];
-//--------------------------------------------------------------------------------------------------------
-const steps = [
-	{
-		title: 'ตรวจสอบรายการ',
-		content: <>
-			<div>
-				<Table
-					size='small'
-					columns={columnsTotal}
-					dataSource={[]}
-					pagination={false}
-					style={{ width: 900 }}
-					title={() => <p style={{ fontSize: 15, textAlign: 'center' }}>รายการสินค้า</p>}
-					summary={pageData => {
-						let total = 0;
-
-						pageData.forEach(({ Price }) => {
-							total = total + Price;
-						});
-
-						return (<>
-							<Table.Summary.Row style={{ textAlign: 'right' }}>
-								<Table.Summary.Cell index={0}></Table.Summary.Cell>
-								<Table.Summary.Cell index={1}></Table.Summary.Cell>
-								<Table.Summary.Cell index={2}></Table.Summary.Cell>
-								<Table.Summary.Cell index={3}><p style={{ fontSize: 20 }}>ราคารวมทั้งสิ้น </p></Table.Summary.Cell>
-								<Table.Summary.Cell index={4}><p style={{ color: 'red', fontSize: 20 }}>{total}</p></Table.Summary.Cell>
-								<Table.Summary.Cell index={4}><p style={{ fontSize: 20 }}>บาท</p></Table.Summary.Cell>
-
-							</Table.Summary.Row>
-						</>);
-
-					}}
-				/>
-
-
-			</div>
-		</>,
-	},
-
-	{
-		title: 'คิดเงิน',
-		content: <>
-			<Row gutter={[0, 16]} >
-				<Card style={{ width: 600 }}>
-					<Divider orientation='right' style={{ fontSize: 20 }}>ยอดรวม</Divider>
-					<Statistic
-						value={"400"}
-						precision={1}
-						valueStyle={{ color: '#3f8600', fontSize: 40, textAlign: 'center', }}
-						suffix="บาท"
-					/>
-				</Card>
-			</Row>
-			<Row gutter={[0, 16]}>
-				<Card style={{ width: 600 }}>
-					<Divider orientation='right' style={{ fontSize: 20 }}>รับเงิน</Divider>
-					<Input placeholder="รับเงิน" style={{ height: 40 }} />
-				</Card>
-			</Row>
-		</>,
-	},
-
-	{
-		title: 'เงินโอน',
-		content: <>
-			<Image
-				width={200}
-				src="QRcode"
-			/>
-		</>,
-	},
-
-	{
-		title: 'จ่ายเงินเชื่อ',
-		content: <>
-			<Row gutter={[0, 16]} >
-				<Card style={{ width: 600 }}>
-					<Divider orientation='right' style={{ fontSize: 20 }}>ยอดค้างชำระ</Divider>
-					<Statistic
-						value={"0"}
-						precision={1}
-						valueStyle={{ color: '#3f8600', fontSize: 40, textAlign: 'center', }}
-						suffix="บาท"
-					/>
-				</Card>
-			</Row>
-			<Row gutter={[0, 16]}>
-				<Card style={{ width: 600 }}>
-					<Divider orientation='right' style={{ fontSize: 20 }}>ยอดบิลล่าสุด</Divider>
-					<Statistic
-						value={"400"}
-						precision={1}
-						valueStyle={{ color: '#3f8600', fontSize: 40, textAlign: 'center', }}
-						suffix="บาท"
-					/>
-				</Card>
-			</Row>
-			<Row gutter={[0, 16]}>
-				<Card style={{ width: 600 }}>
-					<Divider orientation='right' style={{ fontSize: 20 }}>ยอดค้างชำระรวม</Divider>
-					<Statistic
-						value={"400"}
-						precision={1}
-						valueStyle={{ color: '#3f8600', fontSize: 40, textAlign: 'center', }}
-						suffix="บาท"
-					/>
-				</Card>
-			</Row>
-		</>,
-	},
-];
-//--------------------------------------------------------------------------------------------------------
 const SaleProduct = () => {
-	const [isModalVisible, setIsModalVisible] = useState(false);
-	const [isModalVisible2, setIsModalVisible2] = useState(false);
-	const [isModalResult, setIsModalResult] = useState(false);
-	const [isModalResult2, setIsModalResult2] = useState(false);
-	const [isModalNewItem, setIsModalNewItem] = useState(false);
-	const [current, setCurrent] = React.useState(0);
-	const [Bill, setBill] = React.useState(1);
-	const [visible, setVisible] = useState(false);
-	const [data, setData] = useState<SaleProductInterface[]>([]);
-	const [barcodeSearch, setBarcodeSearch] = useState('');
-	const [options, setOptions] = useState<SelectProps<object>['options']>([]);
-	const [searchButton, setSearchButton] = useState(0);
-	const [barcode, setBarcode] = useState<string>('');
-	const [dataTable, setDataTable] = useState<TableMain>([]);
-	const [count, setCount] = useState(1);
-	const [total, setTotal] = useState<number>(0);
-	const [valuePercent, setValuePercent] = useState<number>(0);
-	const [valueBath, setValueBath] = useState<number>(0);
-	const [totalAll, setTotalAll] = useState<number>(0);
+	const [receiveMoney, setReceiveMoney] = useState<number>(0)
+	const [change, setChange] = useState<number>(0)
+	const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
+	const [isModalVisible2, setIsModalVisible2] = useState<boolean>(false)
+	const [isModalResult, setIsModalResult] = useState<boolean>(false)
+	const [isModalResult2, setIsModalResult2] = useState<boolean>(false)
+	const [isModalNewItem, setIsModalNewItem] = useState<boolean>(false)
+	const [current, setCurrent] = useState<number>(0)
+	const [Bill, setBill] = useState<number>(1)
+	const [visible, setVisible] = useState<boolean>(false)
+	const [data, setData] = useState<TableSeach>([])
+	const [barcodeSearch, setBarcodeSearch] = useState<string>('')
+	const [options, setOptions] = useState<SelectProps<object>['options']>([])
+	const [searchButton, setSearchButton] = useState(0)
+	const [barcode, setBarcode] = useState<string>('')
+	const [dataTable, setDataTable] = useState<TableMain>([])
+	const [count, setCount] = useState<number>(1)
+	const [total, setTotal] = useState<number>(0)
+	const [valuePercent, setValuePercent] = useState<number>(0)
+	const [valueBath, setValueBath] = useState<number>(0)
+	const [totalAll, setTotalAll] = useState<number>(0)
 	const fetchData: API = {
 		path: '',
 		url: 'http://localhost:8000/api/',
@@ -228,13 +47,183 @@ const SaleProduct = () => {
 		},
 		id: '',
 	}
+	//------------------------------------------------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------------------------------
+	const receiveMoneys = (e: any): void => {
+
+		setReceiveMoney(e.target.value)
+		setChange(receiveMoney - totalAll)
+	}
+
+	const handleDelete = (key: React.Key) => {
+		setDataTable(dataTable.filter((item: { key: React.Key }) => item.key !== key))
+	}
+
+	const ChangeNumber = (value: number, key: any): void => {
+		let newData: DataType = {
+			key: key,
+			barcode: dataTable[key - 1].barcode,
+			name: dataTable[key - 1].name,
+			quantity: value,
+			priceForPrice: dataTable[key - 1].priceForPrice,
+			priceSell: dataTable[key - 1].priceForPrice * value,
+		}
+		let newItem = [...dataTable]
+		newItem[key - 1] = newData
+		setDataTable(newItem)
+	}
 	const discount: Discount = {
 		total: 0,
 		totalAll: 0,
 		valueBath: 0,
 		valuePercent: 0,
 	}
+	const Discount = (value: number): void => {
+		discount.valueBath = value
+		discount.totalAll = total - discount.valueBath
+		setValueBath(discount.valueBath)
+		setValuePercent((discount.valueBath / total) * 100)
+		setTotalAll(discount.totalAll)
+	}
+	const DiscountPercent = (value: number): void => {
+		discount.valueBath = (value * total) / 100
+		discount.totalAll = total - discount.valueBath
+		setValueBath(discount.valueBath)
+		setValuePercent(value)
+		setTotalAll(discount.totalAll)
+	}
+	const scanBarcode = async (): Promise<void> => {
+		fetchData.path = 'products/'
+		fetchData.id = barcode
+		try {
+			if (barcode === undefined || barcode === '') {
+				message.warning('ไม่มีรหัสสินค้า')
+			} else {
+				const res: DataType | void = await productID(fetchData, count)
+				setDataTable([...dataTable, res])
+				setCount(count + 1)
+			}
+		} catch (error) {
+			message.error('ไม่พบสินค้า')
+		}
+	}
+	const showDrawer = (): void => {
+		setVisible(true)
+	}
+	const onCloseDrawer = (): void => {
+		setVisible(false)
+	}
 
+	const next = (): void => {
+		setCurrent(1)
+	}
+
+	const QRcode = (): void => {
+		setCurrent(2)
+	}
+
+	const prev = (): void => {
+		setCurrent(0)
+	}
+
+	const next2 = (): void => {
+		setCurrent(3)
+	}
+
+	const showModal = (): void => {
+		setIsModalVisible(true)
+	}
+	const handleCancel = (): void => {
+		setIsModalVisible(false)
+		setCurrent(0)
+	}
+	const showModal2 = (): void => {
+		setIsModalVisible2(true)
+	}
+	const handleCancel2 = (): void => {
+		setIsModalVisible2(false)
+	}
+	const showModalNewItem = (): void => {
+		setIsModalNewItem(true)
+	}
+	const closeModalNewItem = (): void => {
+		setIsModalNewItem(false)
+	}
+
+	const showModalResult = (): void => {
+		if (totalAll > receiveMoney) {
+			message.warning('เงินไม่พอชำระ', 0.7)
+			return
+		}
+		setCurrent(0)
+		setIsModalResult(true)
+		setIsModalVisible(false)
+	}
+	const showModalResult2 = (): void => {
+		setCurrent(0)
+		setIsModalResult2(true)
+		setIsModalVisible2(false)
+	}
+
+	const handleOkResult = (): void => {
+		setIsModalResult(false)
+		setIsModalResult2(false)
+	}
+
+	const handleCancelResult = (): void => {
+		setIsModalResult(false)
+		setIsModalResult2(false)
+	}
+
+	const successNewItem = (): void => {
+		message.success('เพิ่มสินค้าสำเร็จ')
+	}
+	const changeBill1 = (): void => {
+		setBill(1)
+	}
+	const changeBill2 = (): void => {
+		setBill(2)
+	}
+
+	const handleSearch = (value: string): void => {
+		setBarcodeSearch(value)
+	}
+	const changeButtonToState1 = (): void => {
+		setSearchButton(1)
+	}
+	const changeButtonToState2 = (): void => {
+		setSearchButton(2)
+	}
+	const changeButtonToState0 = (): void => {
+		setSearchButton(0)
+	}
+	const onSelect = (value: string): void => {
+		setBarcodeSearch(value)
+	}
+	const searchDataFromID = async (): Promise<void> => {
+		if (searchButton === 0) {
+			fetchData.path = 'products/'
+			fetchData.id = barcodeSearch
+			try {
+				if (barcodeSearch === undefined || barcodeSearch === '') {
+					message.warning('ไม่มีรหัสสินค้า')
+				}
+				const response: TableSeach = await searchFromID(fetchData)
+				setData(response)
+			} catch (error) {
+				message.error('ไม่พบสินค้า')
+			}
+		} else if (searchButton === 1) {
+
+		} else if (searchButton === 2) {
+			fetchData.path = 'products/name/'
+		}
+	}
+	const addCart = async (key: React.Key): Promise<void> => {
+		console.log(key);
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------------
 	const columns = [
 
 		{
@@ -253,19 +242,19 @@ const SaleProduct = () => {
 			key: 'quantity',
 			render: (_: any, record: { key: React.Key }) => (
 				<Space size="middle">
-					<InputNumber min={1} max={99} defaultValue = {dataTable[0].quantity} onChange={event => ChangeNumber(event, record.key)} style={{ width: 60 }} />
+					<InputNumber min={1} max={99} defaultValue={dataTable[0].quantity} onChange={event => ChangeNumber(event, record.key)} style={{ width: 60 }} />
 				</Space>
-			), 
+			),
 		},
 		{
 			title: 'ราคาต่อหน่วย(บาท)',
-			dataIndex: 'price_for_piece',
+			dataIndex: 'priceForPrice',
 
 		},
 		{
 			title: 'ราคา(บาท)',
-			dataIndex: 'price_sell',
-			key: 'price_sell',
+			dataIndex: 'priceSell',
+			key: 'priceSell',
 
 		},
 		{
@@ -278,197 +267,182 @@ const SaleProduct = () => {
 				</Popconfirm>
 			)
 		},
-	];
-
-	const handleDelete = (key: React.Key) => {
-		setDataTable(dataTable.filter((item: { key: React.Key; }) => item.key != key));
-	};
-
-	const ChangeNumber = (value: number, key: any) => {
-		let newData: DataType = {
-			key: key,
-			barcode: dataTable[key - 1].barcode,
-			name: dataTable[key - 1].name,
-			quantity: dataTable[key - 1].quantity,
-			price_for_piece: dataTable[key - 1].price_for_piece,
-			price_sell: dataTable[key - 1].price_for_piece * value,
+	]
+	//--------------------------------------------------------------------------------------------------------
+	const columnsSearch = [
+		{
+			title: "รหัสสินค้า",
+			dataIndex: "barcode",
+			key: "barcode",
+		},
+		{
+			title: "ชื่อสินค้า",
+			dataIndex: "name",
+			key: "name",
+		},
+		{
+			title: "ราคา",
+			dataIndex: "priceSell",
+			key: "priceSell",
+		},
+		{
+			title: "จำนวนที่มี",
+			dataIndex: "amount",
+			key: "amount",
+		},
+		{
+			title: "สถานะ",
+			dataIndex: "status",
+			key: "status",
+		},
+		{
+			title: "เพิ่มในตะกล้า",
+			dataIndex: "เพิ่มในตะกล้า",
+			render: (record: { key: React.Key }) => (
+				<Button shape='round' type='primary' icon={<ShoppingCartOutlined />} style={{ width: 70, height: 35 }} onClick={() => addCart(record.key)}></Button>
+			)
 		}
-		let newItem = [...dataTable];
-		newItem[key - 1] = newData;
-		setDataTable(newItem);
-	}
-	const Discount = (value: number) => {
-		discount.valueBath = value
-		discount.totalAll = total - discount.valueBath
-		setValueBath(discount.valueBath);
-		setValuePercent((discount.valueBath / total) * 100);
-		setTotalAll(discount.totalAll)
-	}
-	const DiscountPercent = (value: number) => {
-		discount.valueBath = (value * total) / 100
-		discount.totalAll = total - discount.valueBath
-		setValueBath(discount.valueBath);
-		setValuePercent(value);
-		setTotalAll(discount.totalAll)
-	}
-	const scanBarcode = async () => {
-		fetchData.path = 'products/'
-		fetchData.id = barcode
-		if (barcode === undefined || barcode === '') {
-			console.log('input is null');
-		} else {
-			const res: DataType = await callAPI(fetchData, count);
-			setDataTable([...dataTable, res])
-			setCount(count + 1)
-		}
-	};
-	const showDrawer = () => {
-		setVisible(true);
-	};
-	const onCloseDrawer = () => {
-		setVisible(false);
-	};
 
-	const next = () => {
-		setCurrent(1);
-	};
+	]
+	//--------------------------------------------------------------------------------------------------------
+	const columnsTotal = [
+		{
+			title: 'รหัสสินค้า',
+			dataIndex: 'barcode',
 
-	const QRcode = () => {
-		setCurrent(2);
-	};
+		},
+		{
+			title: 'สินค้า',
+			dataIndex: 'name',
 
-	const prev = () => {
-		setCurrent(0);
-	};
+		},
+		{
+			title: 'จำนวน',
+			dataIndex: 'quantity',
+			key: 'quantity',
+		},
+		{
+			title: 'ราคาต่อหน่วย(บาท)',
+			dataIndex: 'priceForPrice',
 
-	const next2 = () => {
-		setCurrent(3);
-	};
+		},
+		{
+			title: 'ราคา(บาท)',
+			dataIndex: 'priceSell',
+			key: 'priceSell',
 
-	const showModal = () => {
-		setIsModalVisible(true);
-	};
-	const handleCancel = () => {
-		setIsModalVisible(false);
-	};
-	const showModal2 = () => {
-		setIsModalVisible2(true);
-	};
-	const handleCancel2 = () => {
-		setIsModalVisible2(false);
-	};
-	const showModalNewItem = () => {
-		setIsModalNewItem(true);
-	};
-	const closeModalNewItem = () => {
-		setIsModalNewItem(false);
-	};
+		},
 
-	const showModalResult = () => {
-		setCurrent(0);
-		setIsModalResult(true);
-		setIsModalVisible(false);
-	}
-	const showModalResult2 = () => {
-		setCurrent(0);
-		setIsModalResult2(true);
-		setIsModalVisible2(false);
-	}
 
-	const handleOkResult = () => {
-		setIsModalResult(false);
-		setIsModalResult2(false);
-	}
+	]
+	//--------------------------------------------------------------------------------------------------------
+	const steps = [
+		{
+			title: 'ตรวจสอบรายการ',
+			content: <>
+				<div>
+					<Table
+						size='small'
+						columns={columnsTotal}
+						dataSource={dataTable}
+						pagination={false}
+						style={{ width: 900 }}
+						title={() => <p style={{ fontSize: 15, textAlign: 'center' }}>รายการสินค้า</p>}
+						summary={() => {
 
-	const handleCancelResult = () => {
-		setIsModalResult(false);
-		setIsModalResult2(false);
-	}
 
-	const successNewItem = () => {
-		message.success('เพิ่มสินค้าสำเร็จ');
-	}
-	const changeBill1 = () => {
-		setBill(1);
-	}
-	const changeBill2 = () => {
-		setBill(2);
-	}
 
-	const handleSearch = (value: string) => {
-		setOptions(value ? searchResult(value) : []);
-		setBarcodeSearch(value);
-	}
-	const changeButtonToState1 = () => {
-		setSearchButton(1);
-	}
-	const changeButtonToState2 = () => {
-		setSearchButton(2);
-	}
-	const changeButtonToState0 = () => {
-		setSearchButton(0);
-	}
-	const onSelect = (value: string) => {
-		console.log('onSelect', value);
-		setBarcodeSearch(value)
-	};
-	const search_data_from_id = () => {
-		const requestOptions = {
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json"
-			},
-		};
+							return (<>
+								<Table.Summary.Row style={{ textAlign: 'right' }}>
+									<Table.Summary.Cell colSpan={4} index={1}><p style={{}}>ราคารวมทั้งสิ้น </p></Table.Summary.Cell>
+									<Table.Summary.Cell index={2}><p style={{ color: 'red' }}>{totalAll}</p></Table.Summary.Cell>
+									<Table.Summary.Cell index={3}><p style={{}}>บาท</p></Table.Summary.Cell>
+								</Table.Summary.Row>
+							</>)
 
-		fetch(`http://localhost:8000/api/products/${barcodeSearch}`, requestOptions)
-			.then((response) => response.json())
-			.then((res) => {
-				if (res) {
-					setData(res);
-				} else {
-					console.log("id not found");
+						}}
+					/>
 
-				}
-			});
-	};
-	const searchResult = (query: string) =>
-		new Array(5)
-			.join('.')
-			.split('.')
-			.map((_, idx) => {
-				const category = `${query}${idx}`;
-				return {
-					value: category,
-					label: (
-						<div
-							style={{
-								display: 'flex',
-								justifyContent: 'space-between',
-							}}
-						>
-							<span>
-								{' '}
-								<a
-									href={`https://s.taobao.com/search?q=${query}`}
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									{category}
-								</a>
-							</span>
-							<span>{getRandomInt(200, 100)} results</span>
-						</div>
-					),
-				};
-			});
 
-	function getRandomInt(max: number, min: number = 0) {
-		return Math.floor(Math.random() * (max - min + 1)) + min; // eslint-disable-line no-mixed-operators
-	};
+				</div>
+			</>,
+		},
+
+		{
+			title: 'คิดเงิน',
+			content: <>
+				<Row gutter={[0, 16]} >
+					<Card style={{ width: 600 }}>
+						<Divider orientation='right' style={{ fontSize: 20 }}>ยอดรวม</Divider>
+						<Statistic
+							value={totalAll}
+							precision={1}
+							valueStyle={{ color: '#3f8600', fontSize: 40, textAlign: 'center', }}
+							suffix="บาท"
+						/>
+					</Card>
+				</Row>
+				<Row gutter={[0, 16]}>
+					<Card style={{ width: 600 }}>
+						<Divider orientation='right' style={{ fontSize: 20 }}>รับเงิน</Divider>
+						<Input placeholder="รับเงิน" style={{ fontSize: 60 }} onChange={receiveMoneys} bordered={false} />
+					</Card>
+				</Row>
+			</>,
+		},
+
+		{
+			title: 'เงินโอน',
+			content: <>
+				<Image
+					width={200}
+					src="QRcode"
+				/>
+			</>,
+		},
+
+		{
+			title: 'จ่ายเงินเชื่อ',
+			content: <>
+				<Row gutter={[0, 16]} >
+					<Card style={{ width: 600 }}>
+						<Divider orientation='right' style={{ fontSize: 20 }}>ยอดค้างชำระ</Divider>
+						<Statistic
+							value={"0"}
+							precision={1}
+							valueStyle={{ color: '#3f8600', fontSize: 40, textAlign: 'center', }}
+							suffix="บาท"
+						/>
+					</Card>
+				</Row>
+				<Row gutter={[0, 16]}>
+					<Card style={{ width: 600 }}>
+						<Divider orientation='right' style={{ fontSize: 20 }}>ยอดบิลล่าสุด</Divider>
+						<Statistic
+							value={"400"}
+							precision={1}
+							valueStyle={{ color: '#3f8600', fontSize: 40, textAlign: 'center', }}
+							suffix="บาท"
+						/>
+					</Card>
+				</Row>
+				<Row gutter={[0, 16]}>
+					<Card style={{ width: 600 }}>
+						<Divider orientation='right' style={{ fontSize: 20 }}>ยอดค้างชำระรวม</Divider>
+						<Statistic
+							value={"400"}
+							precision={1}
+							valueStyle={{ color: '#3f8600', fontSize: 40, textAlign: 'center', }}
+							suffix="บาท"
+						/>
+					</Card>
+				</Row>
+			</>,
+		},
+	]
 
 	return (
 		<div className="body-page">
-
 			<h2>วันที่และเวลา {date}/{month}/{year}  {timeHours}:{timeMin} น.</h2>
 			<Row gutter={20}>
 				<Col span={6}>
@@ -515,11 +489,12 @@ const SaleProduct = () => {
 					dataSource={dataTable}
 					pagination={false}
 					summary={() => {
-						let total = 0;
+						let total = 0
 						for (let i in dataTable) {
-							total += dataTable[i].price_sell;
+							total += dataTable[i].priceSell
 						}
-						setTotal(total);
+						setTotal(total)
+						setTotalAll(total - valueBath)
 						return (
 							<>
 								<Table.Summary.Row>
@@ -570,7 +545,7 @@ const SaleProduct = () => {
 									</Table.Summary.Cell>
 								</Table.Summary.Row>
 							</>
-						);
+						)
 					}}
 				/>
 				<Col span={8}></Col>
@@ -642,20 +617,6 @@ const SaleProduct = () => {
 					</div>
 				</Row>
 			</Modal>
-			<Modal visible={isModalResult} width={800} footer={[]} onCancel={handleCancelResult}>
-				<Result
-					status="success"
-					title="ชำระเงินเสร็จสิ้น เงินทอน.....บาท"
-
-					extra={[
-						<Button type="primary" key="console" onClick={(handleOkResult)}>
-							ปริ้นใบเสร็จ
-						</Button>,
-						<Button key="buy" onClick={(handleOkResult)} >ไม่ปริ้นใบเสร็จ</Button>,
-					]}
-				/>
-			</Modal>
-
 			<Modal visible={isModalVisible2} width={800} footer={[]} onCancel={handleCancel2}>
 				<Divider style={{ fontSize: 30 }}>บิลเงินเชื่อ</Divider>
 				<Row gutter={[0, 10]}>
@@ -711,7 +672,8 @@ const SaleProduct = () => {
 			<Modal visible={isModalResult} width={800} footer={[]} onCancel={handleCancelResult}>
 				<Result
 					status="success"
-					title="ชำระเงินเสร็จสิ้น"
+					title={`ชำระเงินเสร็จสิ้น เงินทอน ${receiveMoney - totalAll} บาท`}
+
 
 					extra={[
 						<Button type="primary" key="console" onClick={(handleOkResult)}>
@@ -746,10 +708,7 @@ const SaleProduct = () => {
 				</div>
 			</Modal>
 
-
-
 			<Drawer size='large' placement="right" onClose={onCloseDrawer} visible={visible}>
-
 				<Row gutter={[10, 15]}>
 					<Col span={24} >
 						<Radio.Group defaultValue="a" buttonStyle="solid" size="middle">
@@ -759,7 +718,7 @@ const SaleProduct = () => {
 						</Radio.Group>
 					</Col>
 					<Col span={13}>
-						{searchButton == 0 && (
+						{searchButton === 0 && (
 							<AutoComplete
 								options={options}
 								dropdownMatchSelectWidth={252}
@@ -770,7 +729,7 @@ const SaleProduct = () => {
 								placeholder="ค้นหารหัสสินค้า"
 							/>
 						)}
-						{searchButton == 1 && (
+						{searchButton === 1 && (
 							<AutoComplete
 								options={options}
 								dropdownMatchSelectWidth={252}
@@ -781,7 +740,7 @@ const SaleProduct = () => {
 								placeholder="ค้นหารหัสชิ้นส่วน"
 							/>
 						)}
-						{searchButton == 2 && (
+						{searchButton === 2 && (
 							<AutoComplete
 								dropdownMatchSelectWidth={252}
 								style={{ width: 350 }}
@@ -795,19 +754,18 @@ const SaleProduct = () => {
 
 					</Col>
 					<Col span={6}>
-						<Button icon={<SearchOutlined />} type={"primary"} onClick={search_data_from_id} size="large" >Search</Button>
+						<Button icon={<SearchOutlined />} type={"primary"} onClick={searchDataFromID} size="large" >Search</Button>
 					</Col>
 					<Col span={24}>
-						<Table dataSource={[data]} columns={columnsSearch} pagination={false} />
+						<Table dataSource={data} columns={columnsSearch} pagination={false} />
 					</Col>
-					<Sale_table />
 				</Row>
 			</Drawer>
 
 		</div>
 
-	);
-};
+	)
+}
 //--------------------------------------------------------------------------------------------------------
 
-export default SaleProduct;
+export default SaleProduct

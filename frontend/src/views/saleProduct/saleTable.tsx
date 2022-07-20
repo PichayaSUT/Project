@@ -3,8 +3,8 @@ import { Input, InputNumber, Space, Table, Row, Col, Button, Popconfirm, PageHea
 import Item from "antd/lib/list/Item";
 import React, { Key } from "react";
 import { useState } from "react";
-import { API, DataType, SaleProductInterface } from "./InterfaceSaleProducts";
-import { callAPI } from "./API";
+import { API, DataType, searchProduct } from "./InterfaceSaleProducts";
+import { productID } from "./API";
 const Sale_table = () => {
 	const [barcode, setBarcode] = useState('');
 	const [dataTable, setDataTable] = useState<any>([]);
@@ -33,8 +33,8 @@ const Sale_table = () => {
 			key: key,
 			barcode: dataTable[key - 1].barcode,
 			name: dataTable[key - 1].name,
-			price_for_piece: dataTable[key - 1].price_for_piece,
-			price_sell: dataTable[key - 1].price_for_piece * value,
+			priceForPrice: dataTable[key - 1].priceForPrice,
+			priceSell: dataTable[key - 1].priceForPrice * value,
 		}
 		let newItem = [...dataTable];
 		newItem[key - 1] = newData;
@@ -60,8 +60,8 @@ const Sale_table = () => {
 						key: count,
 						barcode: res.id,
 						name: res.name,
-						price_for_piece: res.price_sell,
-						price_sell: res.price_sell,
+						priceForPrice: res.priceSell,
+						priceSell: res.priceSell,
 					} */
 	};
 
@@ -88,13 +88,13 @@ const Sale_table = () => {
 		},
 		{
 			title: 'ราคาต่อหน่วย(บาท)',
-			dataIndex: 'price_for_piece',
+			dataIndex: 'priceForPrice',
 
 		},
 		{
 			title: 'ราคา(บาท)',
-			dataIndex: 'price_sell',
-			key: 'price_sell',
+			dataIndex: 'priceSell',
+			key: 'priceSell',
 
 		},
 		{
@@ -125,8 +125,8 @@ const Sale_table = () => {
 						let total = 0;
 
 						for (let i in dataTable) {
-							console.log(dataTable[i].price_sell);
-							total += dataTable[i].price_sell;
+							console.log(dataTable[i].priceSell);
+							total += dataTable[i].priceSell;
 						}
 						setTotal(total);
 						return (

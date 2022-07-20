@@ -7,13 +7,13 @@ import {
   NotFoundException,
   Inject,
 } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { AuthService } from '../../auth/services/auth.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductCompanyService } from '@app/product-company/product-company.service';
-import { CodeService} from '@app/code/code.service';
+import { CodeService } from '@app/code/code.service';
 import { UnitService } from '@app/unit/unit.service';
 import { DetailService } from '@app/detail/detail.service';
 import {
@@ -41,12 +41,12 @@ export class ProductsService {
     private readonly productRepository: Repository<Product>,
 
     @Inject(ProductCompanyService)
-    private readonly productCompanyService :ProductCompanyService,
-    
+    private readonly productCompanyService: ProductCompanyService,
+
     @Inject(CodeService)
-    private readonly codeService :CodeService,
-   
-  ) {}
+    private readonly codeService: CodeService,
+
+  ) { }
 
   async all() {
     return this.productRepository.find();
@@ -61,8 +61,15 @@ export class ProductsService {
     return from(this.productRepository.findOne({ id }));
   }
 
-  findAll(): Observable<Product[]> {
+  /* findAll(): Observable<Product[]> {
     return from(this.productRepository.createQueryBuilder("product").leftJoinAndSelect("product.product_companys","product_companys").leftJoinAndSelect("product.code","code").getMany());
+  } */
+
+  findPartID(id: string): Observable<Product[]> {
+    return from(this.productRepository.createQueryBuilder("product").where("product.name").getMany())
+  }
+  findName(name: string): Observable<Product[]> {
+    return from(this.productRepository.createQueryBuilder("product").where("product.name like :name", { name: '%' + name + '%' }).getMany())
   }
 
   deleteOne(id: number): Observable<any> {
@@ -73,31 +80,31 @@ export class ProductsService {
     return from(this.productRepository.update(id, product));
   }
 
- createProduct(product: CreateProductDto): Observable<any> {
-    let newproducts : Product;
-    const {   product_companys_id} =
-    product;
-    
-  
- //  const DetailExist =
+  createProduct(product: CreateProductDto): Observable<any> {
+    let newproducts: Product;
+    const { product_companys_id } =
+      product;
+
+
+    //  const DetailExist =
     //  this.DetailService.findOne(detail);
-   // const CodeExist =
+    // const CodeExist =
     //  this.codeService.findOne(code_id);
     const ProductCompanyExist =
-      this.productCompanyService.findOne( product_companys_id);
-   // const UnitExist =
-     //this.UnitService.findOne(unit);
+      this.productCompanyService.findOne(product_companys_id);
+    // const UnitExist =
+    //this.UnitService.findOne(unit);
     return forkJoin({
-   //   DetailValue: DetailExist,
- //   CodeValue: CodeExist,
-    ProductCompanyValue: ProductCompanyExist,
+      //   DetailValue: DetailExist,
+      //   CodeValue: CodeExist,
+      ProductCompanyValue: ProductCompanyExist,
       //UnitValue: UnitExist,
     }).pipe(
-      map(({  ProductCompanyValue }) => {
-        if (ProductCompanyValue  ) {
+      map(({ ProductCompanyValue }) => {
+        if (ProductCompanyValue) {
           newproducts = new Product();
           newproducts.product_companys = ProductCompanyValue;
-         // newproducts.code = CodeValue;
+          // newproducts.code = CodeValue;
           newproducts.limit_amount = product?.limit_amount;
           newproducts.amount = product?.amount;
           newproducts.name = product?.name;

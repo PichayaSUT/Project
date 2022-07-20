@@ -1,20 +1,20 @@
+import { Table } from 'antd';
 
-export interface SaleProductInterface {
-  ID: number,
-  Name: string,
-  Price_sell: number,
-  Limite_amount: number,
-  Amount: number,
-  Status: string,
-
+export interface searchProduct {
+  key: React.Key,
+  barcode: number,
+  name: string,
+  priceSell: number,
+  amount: number,
+  status: string,
 }
 export interface DataType {
   key: React.Key,
   barcode: number,
   name: string,
   quantity: number,
-  price_for_piece: number,
-  price_sell: number,
+  priceForPrice: number,
+  priceSell: number,
 }
 
 export interface Discount {
@@ -39,5 +39,5 @@ export interface API {
   },
   id: string,
 }
-
+export interface TableSeach extends Array<searchProduct>{}
 export interface TableMain extends Array<DataType>{}
