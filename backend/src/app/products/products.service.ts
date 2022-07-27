@@ -58,7 +58,7 @@ export class ProductsService {
   */
 
   findOne(id: number): Observable<Product> {
-    return from(this.productRepository.findOne({ id }));
+    return from(this.productRepository.createQueryBuilder("product").leftJoinAndSelect("product.code","code").where("code.jjCodeNumber = :id",{id}).getOne())
   }
 
   /* findAll(): Observable<Product[]> {
@@ -69,7 +69,7 @@ export class ProductsService {
     return from(this.productRepository.createQueryBuilder("product").where("product.name").getMany())
   }
   findName(name: string): Observable<Product[]> {
-    return from(this.productRepository.createQueryBuilder("product").where("product.name like :name", { name: '%' + name + '%' }).getMany())
+    return from(this.productRepository.createQueryBuilder("product").leftJoinAndSelect("product.code","code").where("product.name like :name", { name: '%' + name + '%' }).getMany())
   }
 
   deleteOne(id: number): Observable<any> {
@@ -84,8 +84,6 @@ export class ProductsService {
     let newproducts: Product;
     const { product_companys_id } =
       product;
-
-
     //  const DetailExist =
     //  this.DetailService.findOne(detail);
     // const CodeExist =
@@ -104,7 +102,7 @@ export class ProductsService {
         if (ProductCompanyValue) {
           newproducts = new Product();
           newproducts.product_companys = ProductCompanyValue;
-          // newproducts.code = CodeValue;
+          //newproducts.code = CodeValue;
           newproducts.limit_amount = product?.limit_amount;
           newproducts.amount = product?.amount;
           newproducts.name = product?.name;

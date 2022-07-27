@@ -45,7 +45,6 @@ export class CreateProductDto {
 
   @IsNotEmpty()
   @ApiProperty()
-
   unit: Unit;
 
   @IsNotEmpty()

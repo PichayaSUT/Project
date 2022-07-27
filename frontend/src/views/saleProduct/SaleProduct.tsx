@@ -3,7 +3,7 @@ import { Card, Drawer, message, Result, Statistic, Image, InputNumber, SelectPro
 import { Input, Table, Space, Row, Col, Radio, Divider, Button, Modal, AutoComplete } from 'antd'
 import { CalendarOutlined, PlusOutlined, PrinterOutlined, SearchOutlined, ShoppingCartOutlined, SnippetsOutlined, UserOutlined } from '@ant-design/icons'
 import { API, DataType, Discount, TableMain, TableSeach } from './InterfaceSaleProducts'
-import { productID, searchFromID } from './API'
+import { productID, searchFromBarcode, searchFromName } from './API'
 
 //--------------------------------------------------------------------------------------------------------
 const D = new Date()
@@ -12,7 +12,6 @@ const month = D.getMonth() + 1
 const year = D.getFullYear()
 const timeHours = D.getUTCHours() + 7
 const timeMin = D.getMinutes()
-
 
 const SaleProduct = () => {
 	const [receiveMoney, setReceiveMoney] = useState<number>(0)
@@ -38,7 +37,7 @@ const SaleProduct = () => {
 	const [totalAll, setTotalAll] = useState<number>(0)
 	const fetchData: API = {
 		path: '',
-		url: 'http://localhost:8000/api/',
+		url: 'http://localhost:3000/api/',
 		requestOptions: {
 			method: "GET",
 			headers: {
@@ -50,7 +49,6 @@ const SaleProduct = () => {
 	//------------------------------------------------------------------------------------------------------------------------
 	//--------------------------------------------------------------------------------------------------------
 	const receiveMoneys = (e: any): void => {
-
 		setReceiveMoney(e.target.value)
 		setChange(receiveMoney - totalAll)
 	}
@@ -208,7 +206,7 @@ const SaleProduct = () => {
 				if (barcodeSearch === undefined || barcodeSearch === '') {
 					message.warning('ไม่มีรหัสสินค้า')
 				}
-				const response: TableSeach = await searchFromID(fetchData)
+				const response: TableSeach = await searchFromBarcode(fetchData)
 				setData(response)
 			} catch (error) {
 				message.error('ไม่พบสินค้า')
@@ -216,7 +214,19 @@ const SaleProduct = () => {
 		} else if (searchButton === 1) {
 
 		} else if (searchButton === 2) {
-			fetchData.path = 'products/name/'
+			fetchData.path = 'products/seachName/'
+			fetchData.id = barcodeSearch
+			try{
+				if (barcodeSearch === undefined || barcodeSearch === '') {
+					message.warning('ไม่มีรหัสสินค้า')
+				}
+				const response: TableSeach = await searchFromName(fetchData)
+				console.log(response);
+				
+				setData(response)
+			}catch (error) {
+				message.error('ไม่พบสินค้า')
+			}
 		}
 	}
 	const addCart = async (key: React.Key): Promise<void> => {
@@ -330,10 +340,7 @@ const SaleProduct = () => {
 			title: 'ราคา(บาท)',
 			dataIndex: 'priceSell',
 			key: 'priceSell',
-
 		},
-
-
 	]
 	//--------------------------------------------------------------------------------------------------------
 	const steps = [
@@ -349,9 +356,6 @@ const SaleProduct = () => {
 						style={{ width: 900 }}
 						title={() => <p style={{ fontSize: 15, textAlign: 'center' }}>รายการสินค้า</p>}
 						summary={() => {
-
-
-
 							return (<>
 								<Table.Summary.Row style={{ textAlign: 'right' }}>
 									<Table.Summary.Cell colSpan={4} index={1}><p style={{}}>ราคารวมทั้งสิ้น </p></Table.Summary.Cell>
@@ -362,8 +366,6 @@ const SaleProduct = () => {
 
 						}}
 					/>
-
-
 				</div>
 			</>,
 		},

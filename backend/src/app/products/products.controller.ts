@@ -50,7 +50,7 @@ export class ProductsController {
     return this.productsService.findAll();
   } */
   @Get('/partID/:id')
-  findPartID(@Param('id') id: string): Observable<Product[]>{
+  findPartID(@Param('id') id: string): Observable<Product[]> {
     return this.productsService.findPartID(String(id));
   }
 

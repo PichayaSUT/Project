@@ -15,7 +15,7 @@ const Sale_table = () => {
 	const [totalAll, setTotalAll] = useState<number>(0);
 	const fetchData : API = {
 		path : 'products/',
-		url : 'http://localhost:8000/api/',
+		url : 'http://localhost:3000/api/',
 		requestOptions : {
 			method : "GET",
 			headers: {

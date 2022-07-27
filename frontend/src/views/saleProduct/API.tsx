@@ -5,9 +5,10 @@ export async function productID(api: API, count: number): Promise<DataType> {
 		try {
 			const response = await fetch(`${api.url}${api.path}${api.id}`, api.requestOptions)
 			const data = await response.json()
+			console.log(data);
 			const dataTemp: DataType = {
 				key: count,
-				barcode: data.id,
+				barcode: data.code.jjCodeNumber,
 				name: data.name,
 				quantity: 1,
 				priceForPrice: data.price_sell,
@@ -20,7 +21,7 @@ export async function productID(api: API, count: number): Promise<DataType> {
 	})
 }
 
-export async function searchFromID(api: API): Promise<TableSeach> {
+export async function searchFromBarcode(api: API): Promise<TableSeach> {
 	return new Promise<TableSeach>(async (resolve, reject) => {
 		try {
 			const response = await fetch(`${api.url}${api.path}${api.id}`, api.requestOptions)
@@ -40,6 +41,29 @@ export async function searchFromID(api: API): Promise<TableSeach> {
 	})
 }
 
+export async function searchFromName(api: API): Promise<TableSeach> {
+	return new Promise<TableSeach>(async (resolve, reject) => {
+		try {
+			const response = await fetch(`${api.url}${api.path}${api.id}`, api.requestOptions)
+			const data = await response.json()			
+			const arrayData : searchProduct[] = []
+			for (let i = 0; i < data.length; i++) {
+				const dataTemp: searchProduct = {
+					key: i+1,
+					barcode: data[i].code.jjCodeNumber,
+					name: data[i].name,
+					amount: data[i].amount,
+					priceSell: data[i].price_sell,
+					status: data[i].status
+				}		
+			arrayData.push(dataTemp)
+			}
+			return resolve(arrayData)
+		} catch (error) {
+			return reject(error)
+		}
+	})
+}
 /* export async function callAPI(api: API){
 	if (true) {
 		fetch(`${api.url}${api.path}${api.id}`, api.requestOptions)
