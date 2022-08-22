@@ -5,7 +5,6 @@ export async function productID(api: API, count: number): Promise<DataType> {
 		try {
 			const response = await fetch(`${api.url}${api.path}${api.id}`, api.requestOptions)
 			const data = await response.json()
-			console.log(data);
 			const dataTemp: DataType = {
 				key: count,
 				barcode: data.code.jjCodeNumber,
@@ -27,7 +26,7 @@ export async function searchFromBarcode(api: API): Promise<TableSeach> {
 			const response = await fetch(`${api.url}${api.path}${api.id}`, api.requestOptions)
 			const data = await response.json()
 			const dataTemp: searchProduct = {
-				key: 1,
+				key: 0,
 				barcode: data.id,
 				name: data.name,
 				amount: data.amount,

@@ -2,7 +2,7 @@ import { Table } from 'antd';
 
 export interface searchProduct {
   key: React.Key,
-  barcode: number,
+  barcode: string,
   name: string,
   priceSell: number,
   amount: number,
@@ -10,7 +10,7 @@ export interface searchProduct {
 }
 export interface DataType {
   key: React.Key,
-  barcode: number,
+  barcode: string,
   name: string,
   quantity: number,
   priceForPrice: number,
