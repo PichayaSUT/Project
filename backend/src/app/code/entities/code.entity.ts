@@ -6,7 +6,7 @@ import { Product } from '@app/products/entities/product.entity';
 export class Code extends BaseEntity {
 
     @PrimaryGeneratedColumn()
-  id: number;
+    id: number;
 
     @Column({nullable: true})
     jjCodeNumber: string;

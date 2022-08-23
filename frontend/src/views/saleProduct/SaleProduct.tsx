@@ -3,8 +3,7 @@ import { Card, Drawer, message, Result, Statistic, Image, InputNumber, SelectPro
 import { Input, Table, Space, Row, Col, Radio, Divider, Button, Modal, AutoComplete } from 'antd'
 import { CalendarOutlined, PlusOutlined, PrinterOutlined, SearchOutlined, ShoppingCartOutlined, SnippetsOutlined, UserOutlined } from '@ant-design/icons'
 import { API, DataType, Discount, TableMain, TableSeach } from './InterfaceSaleProducts'
-import { productID, searchFromID } from './API'
-
+import { productID, searchFromBarcode, searchFromName } from './API'
 //--------------------------------------------------------------------------------------------------------
 const D = new Date()
 const date = D.getDate()
@@ -12,7 +11,6 @@ const month = D.getMonth() + 1
 const year = D.getFullYear()
 const timeHours = D.getUTCHours() + 7
 const timeMin = D.getMinutes()
-
 
 const SaleProduct = () => {
 	const [receiveMoney, setReceiveMoney] = useState<number>(0)
@@ -31,14 +29,14 @@ const SaleProduct = () => {
 	const [searchButton, setSearchButton] = useState(0)
 	const [barcode, setBarcode] = useState<string>('')
 	const [dataTable, setDataTable] = useState<TableMain>([])
-	const [count, setCount] = useState<number>(1)
+	const [count, setCount] = useState<number>(0)
 	const [total, setTotal] = useState<number>(0)
 	const [valuePercent, setValuePercent] = useState<number>(0)
 	const [valueBath, setValueBath] = useState<number>(0)
 	const [totalAll, setTotalAll] = useState<number>(0)
 	const fetchData: API = {
 		path: '',
-		url: 'http://localhost:8000/api/',
+		url: 'http://localhost:3000/api/',
 		requestOptions: {
 			method: "GET",
 			headers: {
@@ -47,10 +45,54 @@ const SaleProduct = () => {
 		},
 		id: '',
 	}
+	const discount: Discount = {
+		total: 0,
+		totalAll: 0,
+		valueBath: 0,
+		valuePercent: 0,
+	}
+
 	//------------------------------------------------------------------------------------------------------------------------
 	//--------------------------------------------------------------------------------------------------------
-	const receiveMoneys = (e: any): void => {
+	const scanBarcode = async (barcode: string): Promise<void> => {
+		fetchData.path = 'products/'
+		fetchData.id = barcode
+		try {
+			if (barcode === undefined || barcode === '') {
+				message.warning('ไม่มีรหัสสินค้า')
+			} else {
+				const res: DataType | void = await productID(fetchData, count)
+				checkBarcode(res)
+				message.success('เพิ่มสินค้าสำเร็จ')
+			}
+		} catch (error) {
+			message.error('ไม่พบสินค้า')
+		}
 
+	}
+	const Quantity = (key: any): number => {
+		if (dataTable.length === 0) {
+			return 0
+		} else {
+			return dataTable[key].quantity
+		}
+
+	}
+	const ChangeNumber = (value: number, key: any): void => {
+		let newData: DataType = {
+			key: key,
+			barcode: dataTable[key].barcode,
+			name: dataTable[key].name,
+			quantity: value,
+			priceForPrice: dataTable[key].priceForPrice,
+			priceSell: dataTable[key].priceForPrice * value,
+		}
+		let newItem = [...dataTable]
+		newItem[key] = newData
+		setDataTable(newItem)
+	}
+
+	const receiveMoneys = (e: any): void => {
 		setReceiveMoney(e.target.value)
 		setChange(receiveMoney - totalAll)
 	}
@@ -59,54 +101,78 @@ const SaleProduct = () => {
 		setDataTable(dataTable.filter((item: { key: React.Key }) => item.key !== key))
 	}
 
-	const ChangeNumber = (value: number, key: any): void => {
-		let newData: DataType = {
-			key: key,
-			barcode: dataTable[key - 1].barcode,
-			name: dataTable[key - 1].name,
-			quantity: value,
-			priceForPrice: dataTable[key - 1].priceForPrice,
-			priceSell: dataTable[key - 1].priceForPrice * value,
-		}
-		let newItem = [...dataTable]
-		newItem[key - 1] = newData
-		setDataTable(newItem)
-	}
-	const discount: Discount = {
-		total: 0,
-		totalAll: 0,
-		valueBath: 0,
-		valuePercent: 0,
-	}
 	const Discount = (value: number): void => {
-		discount.valueBath = value
-		discount.totalAll = total - discount.valueBath
+		discount.valueBath = Number(value.toFixed(2))
+		discount.totalAll = Number((total - discount.valueBath).toFixed(0))
 		setValueBath(discount.valueBath)
-		setValuePercent((discount.valueBath / total) * 100)
+		setValuePercent(Number(((discount.valueBath / total) * 100).toFixed(2)))
 		setTotalAll(discount.totalAll)
 	}
+
 	const DiscountPercent = (value: number): void => {
-		discount.valueBath = (value * total) / 100
-		discount.totalAll = total - discount.valueBath
+		discount.valueBath = Number(((value * total) / 100).toFixed(0))
+		discount.totalAll = Number((total - discount.valueBath).toFixed(0))
 		setValueBath(discount.valueBath)
 		setValuePercent(value)
 		setTotalAll(discount.totalAll)
 	}
-	const scanBarcode = async (): Promise<void> => {
-		fetchData.path = 'products/'
-		fetchData.id = barcode
-		try {
-			if (barcode === undefined || barcode === '') {
-				message.warning('ไม่มีรหัสสินค้า')
-			} else {
-				const res: DataType | void = await productID(fetchData, count)
-				setDataTable([...dataTable, res])
-				setCount(count + 1)
+
+	const searchDataFromID = async (): Promise<void> => {
+		if (searchButton === 0) {
+			fetchData.path = 'products/'
+			fetchData.id = barcodeSearch
+			try {
+				if (barcodeSearch === undefined || barcodeSearch === '') {
+					message.warning('ไม่มีรหัสสินค้า')
+				}
+				const response: TableSeach = await searchFromBarcode(fetchData)
+				setData(response)
+			} catch (error) {
+				message.error('ไม่พบสินค้า')
 			}
-		} catch (error) {
-			message.error('ไม่พบสินค้า')
+		} else if (searchButton === 1) {
+
+		} else if (searchButton === 2) {
+			fetchData.path = 'products/seachName/'
+			fetchData.id = barcodeSearch
+			try {
+				if (barcodeSearch === undefined || barcodeSearch === '') {
+					message.warning('ไม่มีรหัสสินค้า')
+				}
+				const response: TableSeach = await searchFromName(fetchData)
+				setData(response)
+			} catch (error) {
+				message.error('ไม่พบสินค้า')
+			}
 		}
 	}
+	const addCart = async (key: any): Promise<void> => {
+		console.log(data);
+		const temp: DataType = {
+			key: count,
+			barcode: data[key].barcode,
+			name: data[key].name,
+			quantity: 1,
+			priceForPrice: data[key].priceSell,
+			priceSell: data[key].priceSell
+		}
+
+		console.log(temp);
+		checkBarcode(temp)
+	}
+
+	const checkBarcode = (data: DataType): void => {
+		for (let i = 0; i < dataTable.length; i++) {
+			if (dataTable[i].barcode === data.barcode) {
+				ChangeNumber(dataTable[i].quantity + 1, dataTable[i].key)
+				return
+			}
+		}
+		setDataTable([...dataTable, data])
+		setCount(count + 1)
+		return
+	}
+	//---------------------------------------------------------------------------------------------------------		
 	const showDrawer = (): void => {
 		setVisible(true)
 	}
@@ -159,6 +225,7 @@ const SaleProduct = () => {
 		setIsModalResult(true)
 		setIsModalVisible(false)
 	}
+
 	const showModalResult2 = (): void => {
 		setCurrent(0)
 		setIsModalResult2(true)
@@ -200,29 +267,6 @@ const SaleProduct = () => {
 	const onSelect = (value: string): void => {
 		setBarcodeSearch(value)
 	}
-	const searchDataFromID = async (): Promise<void> => {
-		if (searchButton === 0) {
-			fetchData.path = 'products/'
-			fetchData.id = barcodeSearch
-			try {
-				if (barcodeSearch === undefined || barcodeSearch === '') {
-					message.warning('ไม่มีรหัสสินค้า')
-				}
-				const response: TableSeach = await searchFromID(fetchData)
-				setData(response)
-			} catch (error) {
-				message.error('ไม่พบสินค้า')
-			}
-		} else if (searchButton === 1) {
-
-		} else if (searchButton === 2) {
-			fetchData.path = 'products/name/'
-		}
-	}
-	const addCart = async (key: React.Key): Promise<void> => {
-		console.log(key);
-	}
-
 	//-------------------------------------------------------------------------------------------------------------------------
 	const columns = [
 
@@ -242,7 +286,14 @@ const SaleProduct = () => {
 			key: 'quantity',
 			render: (_: any, record: { key: React.Key }) => (
 				<Space size="middle">
-					<InputNumber min={1} max={99} defaultValue={dataTable[0].quantity} onChange={event => ChangeNumber(event, record.key)} style={{ width: 60 }} />
+					<InputNumber
+						min={1}
+						max={99}
+						value={Quantity(record.key)}
+						defaultValue={1}
+						onChange={event => ChangeNumber(event, record.key)}
+						style={{ width: 60 }}
+					/>
 				</Space>
 			),
 		},
@@ -298,8 +349,15 @@ const SaleProduct = () => {
 		{
 			title: "เพิ่มในตะกล้า",
 			dataIndex: "เพิ่มในตะกล้า",
-			render: (record: { key: React.Key }) => (
-				<Button shape='round' type='primary' icon={<ShoppingCartOutlined />} style={{ width: 70, height: 35 }} onClick={() => addCart(record.key)}></Button>
+			render: (_: any, record: { key: React.Key }) => (
+				<Button
+					shape='round'
+					type='primary'
+					icon={<ShoppingCartOutlined />}
+					style={{ width: 70, height: 35 }}
+					onClick={() => addCart(record.key)}
+				>
+				</Button>
 			)
 		}
 
@@ -330,10 +388,7 @@ const SaleProduct = () => {
 			title: 'ราคา(บาท)',
 			dataIndex: 'priceSell',
 			key: 'priceSell',
-
 		},
-
-
 	]
 	//--------------------------------------------------------------------------------------------------------
 	const steps = [
@@ -349,21 +404,16 @@ const SaleProduct = () => {
 						style={{ width: 900 }}
 						title={() => <p style={{ fontSize: 15, textAlign: 'center' }}>รายการสินค้า</p>}
 						summary={() => {
-
-
-
 							return (<>
 								<Table.Summary.Row style={{ textAlign: 'right' }}>
 									<Table.Summary.Cell colSpan={4} index={1}><p style={{}}>ราคารวมทั้งสิ้น </p></Table.Summary.Cell>
 									<Table.Summary.Cell index={2}><p style={{ color: 'red' }}>{totalAll}</p></Table.Summary.Cell>
 									<Table.Summary.Cell index={3}><p style={{}}>บาท</p></Table.Summary.Cell>
 								</Table.Summary.Row>
-							</>)
-
+							</>
+							)
 						}}
 					/>
-
-
 				</div>
 			</>,
 		},
@@ -385,7 +435,12 @@ const SaleProduct = () => {
 				<Row gutter={[0, 16]}>
 					<Card style={{ width: 600 }}>
 						<Divider orientation='right' style={{ fontSize: 20 }}>รับเงิน</Divider>
-						<Input placeholder="รับเงิน" style={{ fontSize: 60 }} onChange={receiveMoneys} bordered={false} />
+						<Input
+							placeholder="รับเงิน"
+							style={{ fontSize: 60 }}
+							onChange={receiveMoneys}
+							bordered={false}
+						/>
 					</Card>
 				</Row>
 			</>,
@@ -471,19 +526,39 @@ const SaleProduct = () => {
 			<Row align='bottom' gutter={20}>
 				<Col span={6}>
 					<Divider orientation="left" >รหัสสินค้า</Divider>
-					<Input placeholder="รหัสสินค้า" size="large" value={barcode} onChange={event => setBarcode(event.target.value)} onPressEnter={scanBarcode} />
+					<Input
+						placeholder="รหัสสินค้า"
+						size="large" type={"text"}
+						onPressEnter={event => scanBarcode((event.target as HTMLInputElement).value)}
+					/>
 				</Col>
 				<Col push={5}>
-					<Button shape='round' icon={<SearchOutlined />} size='large' onClick={showDrawer}>ค้นหาสินค้า</Button>
+					<Button
+						shape='round'
+						icon={<SearchOutlined />}
+						size='large'
+						onClick={showDrawer}
+					>
+						ค้นหาสินค้า
+					</Button>
 				</Col>
 				<Col push={5}>
-					<Button shape='round' type='primary' size='large' onClick={showModalNewItem}>
+					<Button
+						shape='round'
+						type='primary'
+						size='large'
+						onClick={showModalNewItem}
+					>
 						+ เพิ่มสินค้าใหม่
 					</Button>
 				</Col>
 			</Row>
 			<Row gutter={[10, 10]}>
-				<Divider orientation="left" >รายการสินค้า</Divider>
+				<Divider
+					orientation="left"
+				>
+					รายการสินค้า
+				</Divider>
 				<Table
 					columns={columns}
 					dataSource={dataTable}
@@ -548,14 +623,22 @@ const SaleProduct = () => {
 						)
 					}}
 				/>
-				<Col span={8}></Col>
-				<Col span={8}></Col>
 				<Col>
 					{Bill === 1 && (
-						<Button type="primary" style={{ width: 200, height: 70 }} onClick={showModal}><p style={{ fontSize: 30 }}>ชำระเงินสด</p></Button>
+						<Button
+							type="primary"
+							style={{ width: 200, height: 70 }}
+							onClick={showModal}>
+							<p style={{ fontSize: 30 }}>ชำระเงินสด</p>
+						</Button>
 					)}
 					{Bill === 2 && (
-						<Button type="primary" style={{ width: 200, height: 70 }} onClick={showModal2}><p style={{ fontSize: 30 }}>ชำระเงินเชื่อ</p></Button>
+						<Button
+							type="primary"
+							style={{ width: 200, height: 70 }}
+							onClick={showModal2}>
+							<p style={{ fontSize: 30 }}>ชำระเงินเชื่อ</p>
+						</Button>
 					)}
 
 				</Col>
@@ -567,7 +650,7 @@ const SaleProduct = () => {
 					<Col span={1}>
 						<SnippetsOutlined style={{ fontSize: 15 }} />
 					</Col>
-					<Col>
+					<Col span={11}>
 						<p style={{ fontSize: 15 }}>เลขที่ใบเสร็จ : RB12345678</p>
 					</Col>
 				</Row>
@@ -579,7 +662,7 @@ const SaleProduct = () => {
 						<p style={{ fontSize: 15 }}>วันที่ : {date}/{month}/{year}</p>
 					</Col>
 				</Row>
-				<Row gutter={[0, 10]}>
+				<Row gutter={[10, 16]}>
 					<Col span={1}>
 						<UserOutlined style={{ fontSize: 15 }} />
 					</Col>
@@ -587,34 +670,35 @@ const SaleProduct = () => {
 						<p style={{ fontSize: 15 }}>ชื่อสมาชิก : นายสมเกียรติ</p>
 					</Col>
 				</Row>
-				<Row>
-					<Col span={20} push={1}><div className="steps-content">{steps[current].content}</div> </Col>
+				<Row justify='center' gutter={[10, 16]}>
+					<Col span={24} push={1}>
+						<div className="steps-content">{steps[current].content}</div>
+					</Col>
 				</Row>
 				<Row justify='end'>
-					<div className="steps-action">
-						<Space>
-							{current === 0 && (
-								<Button type="primary" onClick={() => next()}>
-									ชำระเงินสด
-								</Button>
-							)}
-							{current === 0 && (
-								<Button type="primary" onClick={() => QRcode()}>
-									ชำระเงินโอน
-								</Button>
-							)}
-							{current > 0 && (
-								<Button style={{ margin: '0 8px' }} onClick={() => prev()}>
-									ย้อนกลับ
-								</Button>
-							)}
-							{current > 0 && (
-								<Button type="primary" onClick={(showModalResult)}>
-									ชำระเงิน
-								</Button>
-							)}
-						</Space>
-					</div>
+					<Space>
+						{current === 0 && (
+							<Button type="primary" onClick={() => next()}>
+								ชำระเงินสด
+							</Button>
+						)}
+						{current === 0 && (
+							<Button type="primary" onClick={() => QRcode()}>
+								ชำระเงินโอน
+							</Button>
+						)}
+						{current > 0 && (
+							<Button style={{ margin: '0 8px' }} onClick={() => prev()}>
+								ย้อนกลับ
+							</Button>
+						)}
+						{current > 0 && (
+							<Button type="primary" onClick={(showModalResult)}>
+								ชำระเงิน
+							</Button>
+						)}
+					</Space>
+
 				</Row>
 			</Modal>
 			<Modal visible={isModalVisible2} width={800} footer={[]} onCancel={handleCancel2}>
@@ -643,11 +727,11 @@ const SaleProduct = () => {
 						<p style={{ fontSize: 15 }}>ชื่อสมาชิก : นายสมเกียรติ</p>
 					</Col>
 				</Row>
-				<Row>
-					<Col span={20} push={1}><div className="steps-content">{steps[current].content}</div> </Col>
-				</Row>
-				<Row justify='end'>
-					<div className="steps-action">
+				<Row justify='start' gutter={[10, 20]}>
+					<Col flex={5}>
+						<div className="steps-content">{steps[current].content}</div>
+					</Col>
+					<Col span={24}>
 						<Space>
 							{current === 0 && (
 								<Button type="primary" onClick={() => next2()}>
@@ -665,7 +749,8 @@ const SaleProduct = () => {
 								</Button>
 							)}
 						</Space>
-					</div>
+					</Col>
+
 				</Row>
 			</Modal>
 
