@@ -3,7 +3,7 @@ import { Card, Drawer, message, Result, Statistic, Image, InputNumber, SelectPro
 import { Input, Table, Space, Row, Col, Radio, Divider, Button, Modal, AutoComplete } from 'antd'
 import { CalendarOutlined, PlusOutlined, PrinterOutlined, SearchOutlined, ShoppingCartOutlined, SnippetsOutlined, UserOutlined } from '@ant-design/icons'
 import { API, DataType, Discount, TableMain, TableSeach } from './InterfaceSaleProducts'
-import { productID, searchFromBarcode, searchFromName } from './API'
+import { productID, searchCustomerPhone, searchFromBarcode, searchFromName } from './API'
 //--------------------------------------------------------------------------------------------------------
 const D = new Date()
 const date = D.getDate()
@@ -36,7 +36,7 @@ const SaleProduct = () => {
 	const [totalAll, setTotalAll] = useState<number>(0)
 	const fetchData: API = {
 		path: '',
-		url: 'http://localhost:3000/api/',
+		url: 'http://localhost:8000/api/',
 		requestOptions: {
 			method: "GET",
 			headers: {
@@ -116,7 +116,12 @@ const SaleProduct = () => {
 		setValuePercent(value)
 		setTotalAll(discount.totalAll)
 	}
-
+	const searchCustomer = async (value: string): Promise<void> => {
+		fetchData.path = 'customer/'
+		fetchData.id = value
+		await searchCustomerPhone(fetchData)
+		
+	}
 	const searchDataFromID = async (): Promise<void> => {
 		if (searchButton === 0) {
 			fetchData.path = 'products/'
@@ -504,7 +509,7 @@ const SaleProduct = () => {
 					<Divider orientation="left" >
 						รหัสสมาชิก
 					</Divider>
-					<Input placeholder="รหัสสมาชิก" />
+					<Input placeholder="รหัสสมาชิก" onPressEnter={(event)=> searchCustomer((event.target as HTMLInputElement).value)}/>
 				</Col>
 				<Col span={6}>
 					<Divider orientation="left" >

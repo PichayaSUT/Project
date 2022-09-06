@@ -22,6 +22,7 @@ import { ProductOrderModule } from '@app/product-order/product-order.module';
 import { ProductStorageModule } from '@app/product-storage/product-storage.module';
 import { CategoryModule } from "@app/category/category.module"
 import { PaymentModule } from './app/payment/payment.module';
+import { CustomerModule } from './app/customer/customer.module';
 
 
 @Module({
@@ -52,6 +53,7 @@ import { PaymentModule } from './app/payment/payment.module';
     ProductStorageModule,
     CategoryModule,
     PaymentModule,
+    CustomerModule,
    
 
   ],
