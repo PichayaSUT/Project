@@ -49,20 +49,15 @@ export class EmployeeController {
     );
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Get('')
-  test() {
-    return 'success';
-  }
   // @Get()
   // findAll() {
   //   return this.employeeService.findAll();
   // }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.employeeService.findOne(+id);
-  // }
+  @Get(':email')
+  findOneByEmail(@Param('email') email: string) {
+    return this.employeeService.findOneByEmail(email);
+  }
 
   // @Patch(':id')
   // update(

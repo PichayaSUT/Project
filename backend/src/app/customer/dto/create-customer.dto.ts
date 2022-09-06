@@ -4,11 +4,11 @@ import { IsNotEmpty, IsPhoneNumber } from "class-validator";
 export class CreateCustomerDto {
   @IsNotEmpty()
   @ApiProperty()
+  @IsPhoneNumber('TH')
   readonly phone_number: string;
 
   @IsNotEmpty()
   @ApiProperty()
-  @IsPhoneNumber('TH')
   readonly first_name: string;
 
   @IsNotEmpty()
@@ -19,7 +19,7 @@ export class CreateCustomerDto {
   @ApiProperty()
   readonly debt: number;
 
-@IsNotEmpty()
+  @IsNotEmpty()
   @ApiProperty()
   readonly credit: number;
 }

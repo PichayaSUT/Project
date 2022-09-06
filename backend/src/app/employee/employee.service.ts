@@ -13,7 +13,7 @@ export class EmployeeService {
     @InjectRepository(Employee)
     private readonly employeeRepository: Repository<Employee>,
     private authService: AuthService,
-  ) {}
+  ) { }
   // function create เอง
   async createEmployee(
     createEmployeeDto: CreateEmployeeDto,
@@ -109,9 +109,23 @@ export class EmployeeService {
   //     },
   //   });
   // }
-  // findOneById(id: number) {
-  //   return `This action returns a #${id} user`;
-  // }
+  findOneByEmail(email: string):Observable<Employee> {
+    return from(
+      this.employeeRepository
+        .createQueryBuilder("employee")
+        .select([
+          "employee.id",
+          "employee.first_name",
+          "employee.last_name",
+          "employee.nickname",
+          "employee.email",
+          "employee.password",
+          "employee.phone",
+          "employee.status"
+        ])
+        .where("employee.email = :email", { email })
+        .getOne())
+  }
 
   // updateById(id: number, updateEmployeeDto: UpdateEmployeeDto) {
   //   return `This action updates a #${id} user`;

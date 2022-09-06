@@ -1,6 +1,7 @@
+import { Payment } from '@app/payment/entities/payment.entity';
 import { BaseEntity } from '@common/BaseEntity';
 import { IsPhoneNumber } from 'class-validator';
-import { Column, Entity, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity('customer')
@@ -24,4 +25,6 @@ export class Customer extends BaseEntity {
   @Column()
   credit: number;
 
+  @OneToMany(() => Payment, (payment) => payment.customer)
+  payments: Payment[]
 }

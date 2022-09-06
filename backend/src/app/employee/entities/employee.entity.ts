@@ -5,9 +5,12 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   OneToOne,
+  OneToMany,
 } from 'typeorm';
 import { BaseEntity } from '@common/BaseEntity';
 import { Role } from '@app/role/entities/role.entity';
+import { Payment } from '@app/payment/entities/payment.entity';
+
 
 @Entity('employee')
 export class Employee extends BaseEntity {
@@ -44,4 +47,7 @@ export class Employee extends BaseEntity {
 
   @OneToOne(() => Role, (role) => role.employee)
   role: Role;
+
+  @OneToMany(() => Payment, (payment) => payment.employee)
+  payments : Payment[]
 }
