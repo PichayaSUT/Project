@@ -1,26 +1,10 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Get,
-  Patch,
-  Param,
-  Delete,
-  Put,
-} from '@nestjs/common';
+import { Controller, Post, Body, Get, Patch, Param, Delete, Put, } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import {
-  HttpStatus,
-  HttpException,
-  Injectable,
-  ConflictException,
-  NotFoundException,
-} from '@nestjs/common';
+import { HttpStatus, HttpException, Injectable, ConflictException, NotFoundException, } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Product } from './entities/product.entity';
 import { catchError, map, Observable, of } from 'rxjs';
-//import { number } from 'joi';
 import { ApiTags } from '@nestjs/swagger';
 import { observableToBeFn } from 'rxjs/internal/testing/TestScheduler';
 
