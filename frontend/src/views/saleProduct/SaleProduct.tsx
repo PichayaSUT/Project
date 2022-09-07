@@ -1,18 +1,17 @@
-import React, { ReactFragment, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Card, Drawer, message, Result, Statistic, Image, InputNumber, SelectProps, Popconfirm } from 'antd'
 import { Input, Table, Space, Row, Col, Radio, Divider, Button, Modal, AutoComplete } from 'antd'
 import { CalendarOutlined, PlusOutlined, PrinterOutlined, SearchOutlined, ShoppingCartOutlined, SnippetsOutlined, UserOutlined } from '@ant-design/icons'
-import { API, DataType, Discount, TableMain, TableSeach } from './InterfaceSaleProducts'
+import { API, DataType, Discount, PaymentJson, SearchCustomer, TableMain, TableSearch } from './InterfaceSaleProducts'
 import { productID, searchCustomerPhone, searchFromBarcode, searchFromName } from './API'
+import moment from 'moment'
 //--------------------------------------------------------------------------------------------------------
-const D = new Date()
-const date = D.getDate()
-const month = D.getMonth() + 1
-const year = D.getFullYear()
-const timeHours = D.getUTCHours() + 7
-const timeMin = D.getMinutes()
 
 const SaleProduct = () => {
+	const [dateState, setDateState] = useState(moment().format("YYYY/MM/DD HH:mm:ss"))
+	useEffect(() => {
+		setInterval(() => setDateState(moment().format("YYYY/MM/DD HH:mm:ss")), 1000);
+	}, []);
 	const [receiveMoney, setReceiveMoney] = useState<number>(0)
 	const [change, setChange] = useState<number>(0)
 	const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
@@ -23,17 +22,25 @@ const SaleProduct = () => {
 	const [current, setCurrent] = useState<number>(0)
 	const [Bill, setBill] = useState<number>(1)
 	const [visible, setVisible] = useState<boolean>(false)
-	const [data, setData] = useState<TableSeach>([])
+	const [data, setData] = useState<TableSearch>([])
 	const [barcodeSearch, setBarcodeSearch] = useState<string>('')
 	const [options, setOptions] = useState<SelectProps<object>['options']>([])
 	const [searchButton, setSearchButton] = useState(0)
-	const [barcode, setBarcode] = useState<string>('')
 	const [dataTable, setDataTable] = useState<TableMain>([])
 	const [count, setCount] = useState<number>(0)
 	const [total, setTotal] = useState<number>(0)
 	const [valuePercent, setValuePercent] = useState<number>(0)
 	const [valueBath, setValueBath] = useState<number>(0)
 	const [totalAll, setTotalAll] = useState<number>(0)
+	const [customer, setCustomer] = useState<SearchCustomer>({
+		id: 0,
+		phoneNumber: "",
+		firstName: "",
+		lastName: "",
+		debt: 0,
+		credit: 0
+	})
+	const [payment, setPayment] = useState<PaymentJson>({})
 	const fetchData: API = {
 		path: '',
 		url: 'http://localhost:8000/api/',
@@ -68,16 +75,16 @@ const SaleProduct = () => {
 		} catch (error) {
 			message.error('ไม่พบสินค้า')
 		}
-
 	}
+
 	const Quantity = (key: any): number => {
 		if (dataTable.length === 0) {
 			return 0
 		} else {
 			return dataTable[key].quantity
 		}
-
 	}
+
 	const ChangeNumber = (value: number, key: any): void => {
 		let newData: DataType = {
 			key: key,
@@ -116,21 +123,35 @@ const SaleProduct = () => {
 		setValuePercent(value)
 		setTotalAll(discount.totalAll)
 	}
+
 	const searchCustomer = async (value: string): Promise<void> => {
 		fetchData.path = 'customer/'
 		fetchData.id = value
-		await searchCustomerPhone(fetchData)
-		
+		try {
+			if (value === undefined || value === '') {
+				message.warning('ไม่มีรหัสสมาชิก')
+				return
+			}
+			const data: SearchCustomer = await searchCustomerPhone(fetchData)
+			if (data) {
+				setCustomer(data)
+				setPayment({ ...payment, customer: { name: data.firstName, phone: data.phoneNumber } })
+			}
+			console.log(payment);
+		} catch (error) {
+			message.warning('ไม่พบชื่อสมาชิก')
+		}
 	}
+
 	const searchDataFromID = async (): Promise<void> => {
 		if (searchButton === 0) {
 			fetchData.path = 'products/'
 			fetchData.id = barcodeSearch
 			try {
 				if (barcodeSearch === undefined || barcodeSearch === '') {
-					message.warning('ไม่มีรหัสสินค้า')
+					throw ''
 				}
-				const response: TableSeach = await searchFromBarcode(fetchData)
+				const response: TableSearch = await searchFromBarcode(fetchData)
 				setData(response)
 			} catch (error) {
 				message.error('ไม่พบสินค้า')
@@ -144,13 +165,14 @@ const SaleProduct = () => {
 				if (barcodeSearch === undefined || barcodeSearch === '') {
 					message.warning('ไม่มีรหัสสินค้า')
 				}
-				const response: TableSeach = await searchFromName(fetchData)
+				const response: TableSearch = await searchFromName(fetchData)
 				setData(response)
 			} catch (error) {
 				message.error('ไม่พบสินค้า')
 			}
 		}
 	}
+
 	const addCart = async (key: any): Promise<void> => {
 		console.log(data);
 		const temp: DataType = {
@@ -503,19 +525,23 @@ const SaleProduct = () => {
 
 	return (
 		<div className="body-page">
-			<h2>วันที่และเวลา {date}/{month}/{year}  {timeHours}:{timeMin} น.</h2>
+			<h2>วันที่และเวลา {dateState}</h2>
 			<Row gutter={20}>
 				<Col span={6}>
 					<Divider orientation="left" >
 						รหัสสมาชิก
 					</Divider>
-					<Input placeholder="รหัสสมาชิก" onPressEnter={(event)=> searchCustomer((event.target as HTMLInputElement).value)}/>
+					<Input placeholder="รหัสสมาชิก" onPressEnter={(event) => searchCustomer((event.target as HTMLInputElement).value)} />
 				</Col>
 				<Col span={6}>
-					<Divider orientation="left" >
+					<Divider orientation="left">
 						ชื่อสมาชิก
 					</Divider>
-					<Input placeholder="ชื่อสมาชิก" />
+					{customer.firstName && (
+						<>
+							<p style={{ fontSize:22 }}>{customer.firstName} {customer.lastName}</p>
+						</>
+					)}
 				</Col>
 				<Col>
 					<Divider orientation="left" orientationMargin="0">
@@ -664,7 +690,7 @@ const SaleProduct = () => {
 						<CalendarOutlined style={{ fontSize: 15 }} />
 					</Col>
 					<Col>
-						<p style={{ fontSize: 15 }}>วันที่ : {date}/{month}/{year}</p>
+						<p style={{ fontSize: 15 }}>วันที่</p>
 					</Col>
 				</Row>
 				<Row gutter={[10, 16]}>
@@ -721,7 +747,7 @@ const SaleProduct = () => {
 						<CalendarOutlined style={{ fontSize: 15 }} />
 					</Col>
 					<Col>
-						<p style={{ fontSize: 15 }}>วันที่ : {date}/{month}/{year}</p>
+						<p style={{ fontSize: 15 }}>วันที่</p>
 					</Col>
 				</Row>
 				<Row gutter={[0, 10]}>

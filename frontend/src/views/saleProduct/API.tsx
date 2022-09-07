@@ -1,4 +1,4 @@
-import { API, DataType, searchProduct, TableSeach } from "./InterfaceSaleProducts";
+import { API, DataType, SearchCustomer, SearchProduct, TableSearch } from "./InterfaceSaleProducts";
 
 export async function productID(api: API, count: number): Promise<DataType> {
 	return new Promise<DataType>(async (resolve, rejects) => {
@@ -20,12 +20,12 @@ export async function productID(api: API, count: number): Promise<DataType> {
 	})
 }
 
-export async function searchFromBarcode(api: API): Promise<TableSeach> {
-	return new Promise<TableSeach>(async (resolve, reject) => {
+export async function searchFromBarcode(api: API): Promise<TableSearch> {
+	return new Promise<TableSearch>(async (resolve, reject) => {
 		try {
 			const response = await fetch(`${api.url}${api.path}${api.id}`, api.requestOptions)
 			const data = await response.json()
-			const dataTemp: searchProduct = {
+			const dataTemp: SearchProduct = {
 				key: 0,
 				barcode: data.id,
 				name: data.name,
@@ -40,14 +40,14 @@ export async function searchFromBarcode(api: API): Promise<TableSeach> {
 	})
 }
 
-export async function searchFromName(api: API): Promise<TableSeach> {
-	return new Promise<TableSeach>(async (resolve, reject) => {
+export async function searchFromName(api: API): Promise<TableSearch> {
+	return new Promise<TableSearch>(async (resolve, reject) => {
 		try {
 			const response = await fetch(`${api.url}${api.path}${api.id}`, api.requestOptions)
 			const data = await response.json()
-			const arrayData: searchProduct[] = []
+			const arrayData: SearchProduct[] = []
 			for (let i = 0; i < data.length; i++) {
-				const dataTemp: searchProduct = {
+				const dataTemp: SearchProduct = {
 					key: i + 1,
 					barcode: data[i].code.jjCodeNumber,
 					name: data[i].name,
@@ -64,16 +64,24 @@ export async function searchFromName(api: API): Promise<TableSeach> {
 	})
 }
 
-export async function searchCustomerPhone(api: API): Promise<string> {
-	new Promise(async () => {
-		const response = await fetch(`${api.url}${api.path}${api.id}`, api.requestOptions)
-		//const data = await response.json()
-		console.log(response);
-		
-
+export async function searchCustomerPhone(api: API): Promise<SearchCustomer> {
+	return new Promise<SearchCustomer>(async (resolve, reject) => {
+		try {
+			const res = await fetch(`${api.url}${api.path}${api.id}`, api.requestOptions)
+			const response = await res.json()
+			const data: SearchCustomer = {
+				id: response.id,
+				phoneNumber: response.phone_number,
+				firstName: response.first_name,
+				lastName: response.last_name,
+				debt: response.debt,
+				credit: response.credit
+			}
+			return resolve(data)
+		} catch (error) {
+			return reject(error)
+		}
 	})
-	return ""
-
 }
 /* export async function callAPI(api: API){
 	if (true) {

@@ -17,6 +17,7 @@
     "craco-less": "^2.0.0",
     "dayjs": "^1.10.7",
     "less": "^4.1.2",
+    "moment": "^2.29.4",
     "node-sass": "^7.0.1",
     "quill-markdown-shortcuts": "0.0.10",
     "quill-markdown-toolbar": "0.0.2",

@@ -1,6 +1,36 @@
-import { Table } from 'antd';
+export interface Payment {
+  paymentId: string,
+  total: number,
+  discount: number,
+  receive: number,
+  paymentType: string,
+  paymentStatus: string,
+  paymentPath: string,
+  customerPhone: string,
+  employeeEmail: string
+}
 
-export interface searchProduct {
+export interface PaymentJson {
+  paymentId?: string,
+  customer?: { name: string, phone: string },
+  employee?: { name: string, email: string },
+  list?: DataType[],
+  total?: number,
+  discount?: number,
+  receive?: number,
+  paymentType?: string,
+  paymentStatus?: string
+}
+
+export interface SearchCustomer {
+  id: number,
+  phoneNumber: string,
+  firstName: string,
+  lastName: string,
+  debt: number,
+  credit: number
+}
+export interface SearchProduct {
   key: React.Key,
   barcode: string,
   name: string,
@@ -39,5 +69,5 @@ export interface API {
   },
   id: string,
 }
-export interface TableSeach extends Array<searchProduct>{}
-export interface TableMain extends Array<DataType>{}
+export interface TableSearch extends Array<SearchProduct> { }
+export interface TableMain extends Array<DataType> { }

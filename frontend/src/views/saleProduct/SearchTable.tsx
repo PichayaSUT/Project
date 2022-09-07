@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { searchProduct } from "./InterfaceSaleProducts"
+import { SearchProduct } from "./InterfaceSaleProducts"
 import { AutoComplete, Button, Col, Divider, Input, Radio, Row, SelectProps, Table } from "antd";
 import { DashboardFilled, SearchOutlined } from "@ant-design/icons";
 
 export function SearchTable(){
-	const [data , setData] = useState<searchProduct[]>([]);
+	const [data , setData] = useState<SearchProduct[]>([]);
 	const [value , setValue] = useState('');
 	const [options, setOptions] = useState<SelectProps<object>['options']>([]);
 	const [searchButton, setSearchButton] = useState(0);

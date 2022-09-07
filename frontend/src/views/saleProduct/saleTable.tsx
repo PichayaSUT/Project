@@ -3,7 +3,7 @@ import { Input, InputNumber, Space, Table, Row, Col, Button, Popconfirm, PageHea
 import Item from "antd/lib/list/Item";
 import React, { Key } from "react";
 import { useState } from "react";
-import { API, DataType, searchProduct } from "./InterfaceSaleProducts";
+import { API, DataType, SearchProduct } from "./InterfaceSaleProducts";
 import { productID } from "./API";
 const Sale_table = () => {
 	const [barcode, setBarcode] = useState('');
