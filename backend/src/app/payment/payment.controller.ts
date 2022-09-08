@@ -1,13 +1,19 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { PaymentService } from './payment.service';
-import { CreatePaymentDto } from './dto/create-payment.dto';
+import { CreatePaymentDto, SavePayment } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { PaymentInterface } from './interface/payment.interface';
 
 @ApiTags('payment')
 @Controller('payment')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) { }
+
+  @Post('/savePayment')
+  createPaymentJson(@Body() data: SavePayment) {
+    return this.paymentService.createPaymentJson(data)
+  }
 
   @Post()
   create(@Body() createPaymentDto: CreatePaymentDto) {

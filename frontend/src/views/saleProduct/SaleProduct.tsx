@@ -3,8 +3,9 @@ import { Card, Drawer, message, Result, Statistic, Image, InputNumber, SelectPro
 import { Input, Table, Space, Row, Col, Radio, Divider, Button, Modal, AutoComplete } from 'antd'
 import { CalendarOutlined, PlusOutlined, PrinterOutlined, SearchOutlined, ShoppingCartOutlined, SnippetsOutlined, UserOutlined } from '@ant-design/icons'
 import { API, DataType, Discount, PaymentJson, SearchCustomer, TableMain, TableSearch } from './InterfaceSaleProducts'
-import { productID, searchCustomerPhone, searchFromBarcode, searchFromName } from './API'
+import { productID, savePaymentToDataBase, savePaymentToJson, searchCustomerPhone, searchFromBarcode, searchFromName } from './API'
 import moment from 'moment'
+import { uuidGen } from './tool'
 //--------------------------------------------------------------------------------------------------------
 
 const SaleProduct = () => {
@@ -13,7 +14,6 @@ const SaleProduct = () => {
 		setInterval(() => setDateState(moment().format("YYYY/MM/DD HH:mm:ss")), 1000);
 	}, []);
 	const [receiveMoney, setReceiveMoney] = useState<number>(0)
-	const [change, setChange] = useState<number>(0)
 	const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
 	const [isModalVisible2, setIsModalVisible2] = useState<boolean>(false)
 	const [isModalResult, setIsModalResult] = useState<boolean>(false)
@@ -49,6 +49,7 @@ const SaleProduct = () => {
 			headers: {
 				"Content-Type": "application/json"
 			},
+			body: ""
 		},
 		id: '',
 	}
@@ -101,7 +102,6 @@ const SaleProduct = () => {
 
 	const receiveMoneys = (e: any): void => {
 		setReceiveMoney(e.target.value)
-		setChange(receiveMoney - totalAll)
 	}
 
 	const handleDelete = (key: React.Key) => {
@@ -248,11 +248,39 @@ const SaleProduct = () => {
 			message.warning('เงินไม่พอชำระ', 0.7)
 			return
 		}
+		savePayment()
 		setCurrent(0)
 		setIsModalResult(true)
 		setIsModalVisible(false)
 	}
 
+	const savePayment = async (): Promise<void> => {
+		const fileName = uuidGen()
+		const newPayment: PaymentJson = {
+			paymentId: fileName,
+			list: dataTable,
+			total: totalAll,
+			discount: discount.valueBath,
+			receive: receiveMoney,
+			paymentType: 'C',
+			paymentStatus: 'Y'
+
+		}
+		setPayment({
+			...payment,
+			...newPayment
+		})
+		fetchData.path = 'payment/savePayment'
+		fetchData.requestOptions.method = 'POST'
+		fetchData.requestOptions.body = JSON.stringify(payment)
+		try {
+			const response = await savePaymentToJson(fetchData)
+			console.log(response);
+		} catch (error) {
+			console.log(error);
+			message.error('ผิดพลาด')
+		}
+	}
 	const showModalResult2 = (): void => {
 		setCurrent(0)
 		setIsModalResult2(true)
@@ -274,9 +302,17 @@ const SaleProduct = () => {
 	}
 	const changeBill1 = (): void => {
 		setBill(1)
+		setPayment({
+			...payment,
+			paymentType: 'C'
+		})
 	}
 	const changeBill2 = (): void => {
 		setBill(2)
+		setPayment({
+			...payment,
+			paymentType: 'D'
+		})
 	}
 
 	const handleSearch = (value: string): void => {
@@ -539,7 +575,7 @@ const SaleProduct = () => {
 					</Divider>
 					{customer.firstName && (
 						<>
-							<p style={{ fontSize:22 }}>{customer.firstName} {customer.lastName}</p>
+							<p style={{ fontSize: 22 }}>{customer.firstName} {customer.lastName}</p>
 						</>
 					)}
 				</Col>

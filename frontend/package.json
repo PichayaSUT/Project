@@ -18,7 +18,6 @@
     "dayjs": "^1.10.7",
     "less": "^4.1.2",
     "moment": "^2.29.4",
-    "node-sass": "^7.0.1",
     "quill-markdown-shortcuts": "0.0.10",
     "quill-markdown-toolbar": "0.0.2",
     "react": "^17.0.2",
@@ -54,5 +53,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/uuid": "^8.3.4",
+    "sass": "^1.54.9"
   }
 }

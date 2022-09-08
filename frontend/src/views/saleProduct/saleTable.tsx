@@ -21,6 +21,7 @@ const Sale_table = () => {
 			headers: {
 				"Content-Type": "application/json"
 			},
+			body:""
 		},
 		id : '',
 	}

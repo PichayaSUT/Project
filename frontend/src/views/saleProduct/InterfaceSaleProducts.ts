@@ -66,6 +66,7 @@ export interface API {
     headers: {
       "Content-Type": "application/json"
     },
+    body: string
   },
   id: string,
 }

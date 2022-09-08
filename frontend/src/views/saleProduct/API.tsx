@@ -83,6 +83,24 @@ export async function searchCustomerPhone(api: API): Promise<SearchCustomer> {
 		}
 	})
 }
+
+export async function savePaymentToJson(api: API): Promise<void> {
+	return new Promise(async (resolve, rejects) => {
+		try {
+			const res = await fetch(`${api.url}${api.path}${api.id}`, api.requestOptions)
+			//const response = await res.json()
+			//console.log(response);
+			resolve()
+		} catch (error) {
+			console.log(error);
+			rejects()
+		}
+	})
+}
+
+export async function savePaymentToDataBase(api: API) {
+
+}
 /* export async function callAPI(api: API){
 	if (true) {
 		fetch(`${api.url}${api.path}${api.id}`, api.requestOptions)

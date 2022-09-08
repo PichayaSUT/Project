@@ -5,40 +5,69 @@ export class CreatePaymentDto {
 
   @IsNotEmpty()
   @ApiProperty()
-  readonly id: string;
+  readonly paymentId: string;
 
   @IsNotEmpty()
   @ApiProperty()
-  discount: number;
+  readonly discount: number;
 
   @IsNotEmpty()
   @ApiProperty()
-  total: number;
+  readonly total: number;
 
   @IsNotEmpty()
   @ApiProperty()
-  receive: number;
+  readonly receive: number;
 
   @IsNotEmpty()
   @ApiProperty()
-  payment_type: string;
+  readonly paymentType: string;
 
   @IsNotEmpty()
   @ApiProperty()
-  status: string;
+  readonly paymentStatus: string;
 
   @IsNotEmpty()
   @ApiProperty()
-  payment_path: string;
+  readonly paymentPath: string;
 
   @IsNotEmpty()
   @ApiProperty()
-  employee: string;
-  
+  readonly employeeEmail: string;
+
   @IsNotEmpty()
   @ApiProperty()
   @IsPhoneNumber('TH')
-  customer_phone_number: string;
+  readonly customerPhone: string;
 }
 
+export class SavePayment {
+  @IsNotEmpty()
+  @ApiProperty()
+  paymentId: string;
+  @IsNotEmpty()
+  @ApiProperty()
+  customer: { name: string, phone: string };
+  @IsNotEmpty()
+  @ApiProperty()
+  employee: { name: string, email: string };
+  @IsNotEmpty()
+  @ApiProperty()
+  list: any[];
+  @IsNotEmpty()
+  @ApiProperty()
+  total: number;
+  @IsNotEmpty()
+  @ApiProperty()
+  discount: number;
+  @IsNotEmpty()
+  @ApiProperty()
+  receive: number;
+  @IsNotEmpty()
+  @ApiProperty()
+  paymentType: string;
+  @IsNotEmpty()
+  @ApiProperty()
+  paymentStatus: string
+}
 
