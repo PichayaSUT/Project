@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { Card, Drawer, message, Result, Statistic, Image, InputNumber, SelectProps, Popconfirm } from 'antd'
 import { Input, Table, Space, Row, Col, Radio, Divider, Button, Modal, AutoComplete } from 'antd'
 import { CalendarOutlined, PlusOutlined, PrinterOutlined, SearchOutlined, ShoppingCartOutlined, SnippetsOutlined, UserOutlined } from '@ant-design/icons'
-import { API, DataType, Discount, PaymentJson, SearchCustomer, TableMain, TableSearch } from './InterfaceSaleProducts'
-import { productID, savePaymentToDataBase, savePaymentToJson, searchCustomerPhone, searchFromBarcode, searchFromName } from './API'
+import { API, ApiWithBody, DataType, Discount, PaymentJson, SearchCustomer, TableMain, TableSearch } from './InterfaceSaleProducts'
+import { productID, savePaymentToJson, searchCustomerPhone, searchFromBarcode, searchFromName } from './API'
 import moment from 'moment'
 import { uuidGen } from './tool'
 //--------------------------------------------------------------------------------------------------------
@@ -20,7 +20,10 @@ const SaleProduct = () => {
 	const [isModalResult2, setIsModalResult2] = useState<boolean>(false)
 	const [isModalNewItem, setIsModalNewItem] = useState<boolean>(false)
 	const [current, setCurrent] = useState<number>(0)
-	const [Bill, setBill] = useState<number>(1)
+	const [bill, setBill] = useState<{ bill: number, credit: boolean }>({
+		bill: 1,
+		credit: true
+	})
 	const [visible, setVisible] = useState<boolean>(false)
 	const [data, setData] = useState<TableSearch>([])
 	const [barcodeSearch, setBarcodeSearch] = useState<string>('')
@@ -40,8 +43,29 @@ const SaleProduct = () => {
 		debt: 0,
 		credit: 0
 	})
-	const [payment, setPayment] = useState<PaymentJson>({})
+	const [payment, setPayment] = useState<PaymentJson>({
+		paymentId: "",
+		customer: { name: "", phone: "" },
+		employee: { name: "", email: "" },
+		list: [],
+		total: 0,
+		discount: 0,
+		receive: 0,
+		paymentType: "C",
+		paymentStatus: "Y"
+	})
 	const fetchData: API = {
+		path: '',
+		url: 'http://localhost:8000/api/',
+		requestOptions: {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json"
+			}
+		},
+		id: '',
+	}
+	const fetchDataWithBody: ApiWithBody = {
 		path: '',
 		url: 'http://localhost:8000/api/',
 		requestOptions: {
@@ -136,6 +160,11 @@ const SaleProduct = () => {
 			if (data) {
 				setCustomer(data)
 				setPayment({ ...payment, customer: { name: data.firstName, phone: data.phoneNumber } })
+				setBill({
+					...bill,
+					bill: 1,
+					credit: false
+				})
 			}
 			console.log(payment);
 		} catch (error) {
@@ -255,33 +284,31 @@ const SaleProduct = () => {
 	}
 
 	const savePayment = async (): Promise<void> => {
-		const fileName = uuidGen()
-		const newPayment: PaymentJson = {
-			paymentId: fileName,
-			list: dataTable,
-			total: totalAll,
-			discount: discount.valueBath,
-			receive: receiveMoney,
-			paymentType: 'C',
-			paymentStatus: 'Y'
-
-		}
-		setPayment({
-			...payment,
-			...newPayment
-		})
-		fetchData.path = 'payment/savePayment'
-		fetchData.requestOptions.method = 'POST'
-		fetchData.requestOptions.body = JSON.stringify(payment)
 		try {
-			const response = await savePaymentToJson(fetchData)
-			console.log(response);
+			const fileName = uuidGen()
+			const newPayment: PaymentJson = {
+				customer: payment.customer,
+				employee: payment.employee,
+				paymentId: fileName,
+				list: dataTable,
+				total: totalAll,
+				discount: discount.valueBath,
+				receive: receiveMoney,
+				paymentStatus: payment.paymentStatus,
+				paymentType: payment.paymentType
+			}
+			fetchDataWithBody.path = 'payment/savePayment'
+			fetchDataWithBody.requestOptions.method = 'POST'
+			fetchDataWithBody.requestOptions.body = JSON.stringify(newPayment)
+			const response = await savePaymentToJson(fetchDataWithBody)
 		} catch (error) {
 			console.log(error);
 			message.error('ผิดพลาด')
 		}
 	}
+
 	const showModalResult2 = (): void => {
+		savePayment()
 		setCurrent(0)
 		setIsModalResult2(true)
 		setIsModalVisible2(false)
@@ -301,17 +328,26 @@ const SaleProduct = () => {
 		message.success('เพิ่มสินค้าสำเร็จ')
 	}
 	const changeBill1 = (): void => {
-		setBill(1)
+		setBill({
+			...bill,
+			bill: 1,
+			credit: false
+		})
 		setPayment({
 			...payment,
 			paymentType: 'C'
 		})
 	}
 	const changeBill2 = (): void => {
-		setBill(2)
+		setBill({
+			...bill,
+			bill: 2,
+			credit: false
+		})
 		setPayment({
 			...payment,
-			paymentType: 'D'
+			paymentType: 'D',
+			paymentStatus : 'N'
 		})
 	}
 
@@ -526,7 +562,7 @@ const SaleProduct = () => {
 					<Card style={{ width: 600 }}>
 						<Divider orientation='right' style={{ fontSize: 20 }}>ยอดค้างชำระ</Divider>
 						<Statistic
-							value={"0"}
+							value={customer.debt}
 							precision={1}
 							valueStyle={{ color: '#3f8600', fontSize: 40, textAlign: 'center', }}
 							suffix="บาท"
@@ -537,7 +573,7 @@ const SaleProduct = () => {
 					<Card style={{ width: 600 }}>
 						<Divider orientation='right' style={{ fontSize: 20 }}>ยอดบิลล่าสุด</Divider>
 						<Statistic
-							value={"400"}
+							value={totalAll}
 							precision={1}
 							valueStyle={{ color: '#3f8600', fontSize: 40, textAlign: 'center', }}
 							suffix="บาท"
@@ -548,7 +584,7 @@ const SaleProduct = () => {
 					<Card style={{ width: 600 }}>
 						<Divider orientation='right' style={{ fontSize: 20 }}>ยอดค้างชำระรวม</Divider>
 						<Statistic
-							value={"400"}
+							value={customer.debt+totalAll}
 							precision={1}
 							valueStyle={{ color: '#3f8600', fontSize: 40, textAlign: 'center', }}
 							suffix="บาท"
@@ -569,23 +605,21 @@ const SaleProduct = () => {
 					</Divider>
 					<Input placeholder="รหัสสมาชิก" onPressEnter={(event) => searchCustomer((event.target as HTMLInputElement).value)} />
 				</Col>
-				<Col span={6}>
-					<Divider orientation="left">
-						ชื่อสมาชิก
-					</Divider>
-					{customer.firstName && (
-						<>
-							<p style={{ fontSize: 22 }}>{customer.firstName} {customer.lastName}</p>
-						</>
-					)}
-				</Col>
+				{customer.firstName && (
+					<Col span={6}>
+						<Divider orientation="left">
+							ชื่อสมาชิก
+						</Divider>
+						<p style={{ fontSize: 22 }}>{customer.firstName} {customer.lastName}</p>
+					</Col>
+				)}
 				<Col>
 					<Divider orientation="left" orientationMargin="0">
 						เลือกชนิดของบิล
 					</Divider>
 					<Radio.Group defaultValue="a" buttonStyle="solid">
-						<Radio.Button value="a" onClick={changeBill1}>บิลเงินสด</Radio.Button>
-						<Radio.Button value="b" onClick={changeBill2}>บิลเงินเชื่อ</Radio.Button>
+						<Radio.Button value="a" onClick={changeBill1} disabled={bill.credit}>บิลเงินสด</Radio.Button>
+						<Radio.Button value="b" onClick={changeBill2} disabled={bill.credit}>บิลเงินเชื่อ</Radio.Button>
 					</Radio.Group>
 				</Col>
 
@@ -691,7 +725,7 @@ const SaleProduct = () => {
 					}}
 				/>
 				<Col>
-					{Bill === 1 && (
+					{bill.bill === 1 && (
 						<Button
 							type="primary"
 							style={{ width: 200, height: 70 }}
@@ -699,7 +733,7 @@ const SaleProduct = () => {
 							<p style={{ fontSize: 30 }}>ชำระเงินสด</p>
 						</Button>
 					)}
-					{Bill === 2 && (
+					{bill.bill === 2 && (
 						<Button
 							type="primary"
 							style={{ width: 200, height: 70 }}

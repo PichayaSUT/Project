@@ -20,8 +20,7 @@ const Sale_table = () => {
 			method : "GET",
 			headers: {
 				"Content-Type": "application/json"
-			},
-			body:""
+			}
 		},
 		id : '',
 	}

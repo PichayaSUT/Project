@@ -16,8 +16,8 @@ export class PaymentController {
   }
 
   @Post()
-  create(@Body() createPaymentDto: CreatePaymentDto) {
-    return this.paymentService.create(createPaymentDto);
+  create(@Body() data: SavePayment) {
+    return this.paymentService.create(data);
   }
 
   @Get('/all/:phoneNumber')

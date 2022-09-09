@@ -1,4 +1,4 @@
-import { API, DataType, SearchCustomer, SearchProduct, TableSearch } from "./InterfaceSaleProducts";
+import { API, ApiWithBody, DataType, Payment, PaymentJson, SearchCustomer, SearchProduct, TableSearch } from "./InterfaceSaleProducts";
 
 export async function productID(api: API, count: number): Promise<DataType> {
 	return new Promise<DataType>(async (resolve, rejects) => {
@@ -88,18 +88,13 @@ export async function savePaymentToJson(api: API): Promise<void> {
 	return new Promise(async (resolve, rejects) => {
 		try {
 			const res = await fetch(`${api.url}${api.path}${api.id}`, api.requestOptions)
-			//const response = await res.json()
-			//console.log(response);
+			const resSavePayment = await fetch(`${api.url}${api.path='payment'}${api.id}`, api.requestOptions)
 			resolve()
 		} catch (error) {
 			console.log(error);
 			rejects()
 		}
 	})
-}
-
-export async function savePaymentToDataBase(api: API) {
-
 }
 /* export async function callAPI(api: API){
 	if (true) {

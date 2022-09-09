@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { forkJoin, from, map, Observable } from 'rxjs';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { CreatePaymentDto, SavePayment } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { Payment } from './entities/payment.entity';
@@ -16,7 +16,7 @@ import * as fs from 'fs'
 export class PaymentService {
   constructor(
     @InjectRepository(Payment)
-    private readonly paymentReposity: Repository<Payment>,
+    private readonly paymentRepository: Repository<Payment>,
 
     @Inject(CustomerService)
     private readonly customerService: CustomerService,
@@ -27,36 +27,50 @@ export class PaymentService {
 
   createPaymentJson(data: SavePayment): string {
     console.log(data);
-    
-    fs.writeFileSync(`D:/Project/data/json/555.json`, JSON.stringify(data))
+    fs.writeFileSync(`D:/Project/data/json/${data.paymentId}.json`, JSON.stringify(data))
+    console.log(`create : ${data.paymentId}.json success`);
     return ""
   }
 
-  create(createPaymentDto: CreatePaymentDto) {
-    const customer = this.customerService.findOne(createPaymentDto.customerPhone)
-    const employee = this.employeeService.findOneByEmail(createPaymentDto.employeeEmail)
-
+  create(data: SavePayment) {
+    console.log(data);
+    
+    const customer = this.customerService.findOne(data.customer.phone)
+    const employee = this.employeeService.findOneByEmail(data.employee.email)
+    /* (): Observable<Employee> => {
+      if (!(data.employee.email === undefined)) {
+        console.log('start save database');
+        return this.employeeService.findOneByEmail(data.employee.email)
+      } else {
+        console.log('Email is NUll'); 
+        return null
+      }
+    } */
     return forkJoin({
       customerValue: customer,
       employeeValue: employee,
     }).pipe(
       map(({ customerValue, employeeValue }) => {
-        if (createPaymentDto.paymentType === 'D') {
-          customerValue.debt += createPaymentDto.total
-          this.customerService.update(createPaymentDto.customerPhone, customerValue)
+        if (data.paymentType === 'D') {
+          customerValue.debt += data.total
+          this.customerService.update(data.customer.phone, customerValue)
         }
         const newPayment = new Payment();
-        newPayment.id = createPaymentDto.paymentId;
-        newPayment.discount = createPaymentDto.discount;
-        newPayment.total = createPaymentDto.total;
-        newPayment.receive = createPaymentDto.receive;
-        newPayment.payment_type = createPaymentDto.paymentType;
-        newPayment.status = createPaymentDto.paymentStatus;
-        newPayment.payment_path = createPaymentDto.paymentPath;
-        newPayment.customer = customerValue;
-        newPayment.employee = employeeValue;
-
-        this.paymentReposity.save(newPayment).then((res) => {
+        if (!(employeeValue === null)) {
+          newPayment.employee = employeeValue;
+        }
+        if (!(customerValue === null)) {
+          newPayment.customer = customerValue;
+        }
+        newPayment.id = data.paymentId;
+        newPayment.discount = data.discount;
+        newPayment.total = data.total;
+        newPayment.receive = data.receive;
+        newPayment.payment_type = data.paymentType;
+        newPayment.status = data.paymentStatus;
+        newPayment.payment_path = `D:/Project/data/json/${data.paymentId}.json`;
+        
+        this.paymentRepository.save(newPayment).then((res) => {
           console.log(res);
           if (!res) {
             throw new HttpException(
@@ -74,7 +88,7 @@ export class PaymentService {
   findAll(id: string): Observable<Payment[]> {
 
     return from(
-      this.paymentReposity
+      this.paymentRepository
         .createQueryBuilder("payment")
         .select([
           "payment.id",

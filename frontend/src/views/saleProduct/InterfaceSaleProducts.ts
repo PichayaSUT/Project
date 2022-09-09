@@ -1,25 +1,25 @@
 export interface Payment {
-  paymentId: string,
-  total: number,
-  discount: number,
-  receive: number,
-  paymentType: string,
-  paymentStatus: string,
-  paymentPath: string,
-  customerPhone: string,
-  employeeEmail: string
-}
-
-export interface PaymentJson {
   paymentId?: string,
-  customer?: { name: string, phone: string },
-  employee?: { name: string, email: string },
-  list?: DataType[],
   total?: number,
   discount?: number,
   receive?: number,
   paymentType?: string,
-  paymentStatus?: string
+  paymentStatus?: string,
+  paymentPath?: string,
+  customerPhone?: string,
+  employeeEmail?: string
+}
+
+export interface PaymentJson {
+  paymentId: string,
+  customer: { name: string, phone: string },
+  employee: { name: string, email: string },
+  list: DataType[],
+  total: number,
+  discount: number,
+  receive: number,
+  paymentType: string,
+  paymentStatus: string
 }
 
 export interface SearchCustomer {
@@ -59,6 +59,17 @@ export interface SellList {
 }
 
 export interface API {
+  path: string,
+  url: string,
+  requestOptions: {
+    method: "POST" | "GET" | "DELETE" | "UPDATE",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  },
+  id: string,
+}
+export interface ApiWithBody {
   path: string,
   url: string,
   requestOptions: {
