@@ -347,7 +347,7 @@ const SaleProduct = () => {
 		setPayment({
 			...payment,
 			paymentType: 'D',
-			paymentStatus : 'N'
+			paymentStatus: 'N'
 		})
 	}
 
@@ -372,11 +372,13 @@ const SaleProduct = () => {
 		{
 			title: 'รหัสสินค้า',
 			dataIndex: 'barcode',
+			width: 40,
 
 		},
 		{
 			title: 'สินค้า',
 			dataIndex: 'name',
+			width: 100,
 
 		},
 		{
@@ -395,22 +397,25 @@ const SaleProduct = () => {
 					/>
 				</Space>
 			),
+			width: 20,
 		},
 		{
-			title: 'ราคาต่อหน่วย(บาท)',
+			title: 'ราคา:หน่วย',
 			dataIndex: 'priceForPrice',
+			width: 20,
 
 		},
 		{
 			title: 'ราคา(บาท)',
 			dataIndex: 'priceSell',
 			key: 'priceSell',
+			width: 50,
 
 		},
 		{
 			title: 'operation',
 			dataIndex: 'operation',
-
+			width: 30,
 			render: (_: any, record: { key: React.Key }) => (
 				<Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.key)}>
 					<a>Delete</a>
@@ -584,7 +589,7 @@ const SaleProduct = () => {
 					<Card style={{ width: 600 }}>
 						<Divider orientation='right' style={{ fontSize: 20 }}>ยอดค้างชำระรวม</Divider>
 						<Statistic
-							value={customer.debt+totalAll}
+							value={customer.debt + totalAll}
 							precision={1}
 							valueStyle={{ color: '#3f8600', fontSize: 40, textAlign: 'center', }}
 							suffix="บาท"
@@ -596,154 +601,171 @@ const SaleProduct = () => {
 	]
 
 	return (
-		<div className="body-page">
-			<h2>วันที่และเวลา {dateState}</h2>
-			<Row gutter={20}>
-				<Col span={6}>
-					<Divider orientation="left" >
-						รหัสสมาชิก
-					</Divider>
-					<Input placeholder="รหัสสมาชิก" onPressEnter={(event) => searchCustomer((event.target as HTMLInputElement).value)} />
-				</Col>
-				{customer.firstName && (
-					<Col span={6}>
-						<Divider orientation="left">
-							ชื่อสมาชิก
-						</Divider>
-						<p style={{ fontSize: 22 }}>{customer.firstName} {customer.lastName}</p>
+		<div>
+			<div style={{
+				backgroundColor: "#ffffff",
+				minWidth: "900px",
+				minHeight: "300px",
+				paddingLeft: "20px",
+				paddingRight: "20px",
+				paddingBottom: "20px",
+				borderRadius: "15px",
+			}}>
+				<Row gutter={[20, 10]} align={'bottom'}>
+					{!(customer.firstName) && (
+						<Col span={12}>
+							<Divider orientation="left" >
+								รหัสสมาชิก
+							</Divider>
+							<Input
+								placeholder="รหัสสมาชิก"
+								size="large" type={"text"}
+								onPressEnter={(event) => searchCustomer((event.target as HTMLInputElement).value)}
+							/>
+						</Col>
+					)}
+					{customer.firstName && (
+						<Col span={12}>
+							<Divider orientation="left">
+								ชื่อสมาชิก
+							</Divider>
+							<Input
+								placeholder={customer.firstName + '  ' + customer.lastName}
+								size="large" type={"text"}
+								disabled={true}
+							/>
+						</Col>
+					)}
+					<Col span={12}>
+						<Divider orientation="left" >รหัสสินค้า</Divider>
+						<Input
+							placeholder="รหัสสินค้า"
+							size="large" type={"text"}
+							onPressEnter={event => scanBarcode((event.target as HTMLInputElement).value)}
+						/>
 					</Col>
-				)}
-				<Col>
-					<Divider orientation="left" orientationMargin="0">
-						เลือกชนิดของบิล
-					</Divider>
-					<Radio.Group defaultValue="a" buttonStyle="solid">
-						<Radio.Button value="a" onClick={changeBill1} disabled={bill.credit}>บิลเงินสด</Radio.Button>
-						<Radio.Button value="b" onClick={changeBill2} disabled={bill.credit}>บิลเงินเชื่อ</Radio.Button>
-					</Radio.Group>
-				</Col>
+					<Col>
+						<Radio.Group defaultValue="a" buttonStyle="solid">
+							<Radio.Button value="a" onClick={changeBill1} disabled={bill.credit}>บิลเงินสด</Radio.Button>
+							<Radio.Button value="b" onClick={changeBill2} disabled={bill.credit}>บิลเงินเชื่อ</Radio.Button>
+						</Radio.Group>
+					</Col>
 
-			</Row>
-			<Row align='bottom' gutter={20}>
-				<Col span={6}>
-					<Divider orientation="left" >รหัสสินค้า</Divider>
-					<Input
-						placeholder="รหัสสินค้า"
-						size="large" type={"text"}
-						onPressEnter={event => scanBarcode((event.target as HTMLInputElement).value)}
-					/>
-				</Col>
-				<Col push={5}>
-					<Button
-						shape='round'
-						icon={<SearchOutlined />}
-						size='large'
-						onClick={showDrawer}
-					>
-						ค้นหาสินค้า
-					</Button>
-				</Col>
-				<Col push={5}>
-					<Button
-						shape='round'
-						type='primary'
-						size='large'
-						onClick={showModalNewItem}
-					>
-						+ เพิ่มสินค้าใหม่
-					</Button>
-				</Col>
-			</Row>
-			<Row gutter={[10, 10]}>
-				<Divider
-					orientation="left"
-				>
-					รายการสินค้า
-				</Divider>
-				<Table
-					columns={columns}
-					dataSource={dataTable}
-					pagination={false}
-					summary={() => {
-						let total = 0
-						for (let i in dataTable) {
-							total += dataTable[i].priceSell
-						}
-						setTotal(total)
-						setTotalAll(total - valueBath)
-						return (
-							<>
-								<Table.Summary.Row>
-									<Table.Summary.Cell colSpan={4} index={1}>
-										ยอดรวม
-									</Table.Summary.Cell>
-									<Table.Summary.Cell index={2}>
-										{total}
-									</Table.Summary.Cell>
-									<Table.Summary.Cell index={3}>
-										บาท
-									</Table.Summary.Cell>
-								</Table.Summary.Row>
-								<Table.Summary.Row>
-									<Table.Summary.Cell colSpan={4} index={1}>
-										ส่วนลด
-									</Table.Summary.Cell>
-									<Table.Summary.Cell index={2}>
-										<InputNumber
-											defaultValue={0}
-											value={valueBath}
-											min={0}
-											max={total}
-											formatter={value => ` ${value} บาท`}
-											onChange={Discount}
-										/>
-										<InputNumber
-											min={0}
-											value={valuePercent}
-											max={100}
-											formatter={value => `${value} %`}
-											onChange={DiscountPercent}
-										/>
-									</Table.Summary.Cell>
-									<Table.Summary.Cell index={3}>
-										บาท
-									</Table.Summary.Cell>
-								</Table.Summary.Row>
-								<Table.Summary.Row>
-									<Table.Summary.Cell colSpan={4} index={1}>
-										ยอดรวมทั้งหมด
-									</Table.Summary.Cell>
-									<Table.Summary.Cell index={2}>
-										{totalAll}
-									</Table.Summary.Cell>
-									<Table.Summary.Cell index={3}>
-										บาท
-									</Table.Summary.Cell>
-								</Table.Summary.Row>
-							</>
-						)
-					}}
-				/>
-				<Col>
-					{bill.bill === 1 && (
+					<Col style={{ float: "right" }}>
 						<Button
-							type="primary"
-							style={{ width: 200, height: 70 }}
-							onClick={showModal}>
-							<p style={{ fontSize: 30 }}>ชำระเงินสด</p>
+							shape='round'
+							icon={<SearchOutlined />}
+							size='large'
+							onClick={showDrawer}
+						>
+							ค้นหาสินค้า
 						</Button>
-					)}
-					{bill.bill === 2 && (
+					</Col>
+					<Col>
 						<Button
-							type="primary"
-							style={{ width: 200, height: 70 }}
-							onClick={showModal2}>
-							<p style={{ fontSize: 30 }}>ชำระเงินเชื่อ</p>
+							shape='round'
+							type='primary'
+							size='large'
+							onClick={showModalNewItem}
+						>
+							+ เพิ่มสินค้าใหม่
 						</Button>
-					)}
+					</Col>
+					<Col span={24}>
+						<Table
+							size='small'
+							columns={columns}
+							dataSource={dataTable}
+							pagination={false}
+							scroll={{ y: 300 }}
+							summary={() => {
+								let total = 0
+								for (let i in dataTable) {
+									total += dataTable[i].priceSell
+								}
+								setTotal(total)
+								setTotalAll(total - valueBath)
+								return (
+									<>
+										<Table.Summary.Row>
+											<Table.Summary.Cell colSpan={4} index={1}>
+												ยอดรวม
+											</Table.Summary.Cell>
+											<Table.Summary.Cell index={2}>
+												{total}
+											</Table.Summary.Cell>
+											<Table.Summary.Cell index={3}>
+												บาท
+											</Table.Summary.Cell>
+										</Table.Summary.Row>
+										<Table.Summary.Row>
+											<Table.Summary.Cell colSpan={4} index={1}>
+												ส่วนลด
+											</Table.Summary.Cell>
+											<Table.Summary.Cell index={2}>
+												<Row gutter={[10, 10]}>
+													<Col span={12}>
+														<InputNumber
+															defaultValue={0}
+															value={valueBath}
+															min={0}
+															max={total}
+															formatter={value => ` ${value} บาท`}
+															onChange={Discount}
+														/>
+													</Col>
+													<Col span={12}>
+														<InputNumber
+															min={0}
+															value={valuePercent}
+															max={100}
+															formatter={value => `${value} %`}
+															onChange={DiscountPercent}
+														/>
+													</Col>
+												</Row>
+											</Table.Summary.Cell>
+											<Table.Summary.Cell index={3}>
+												บาท
+											</Table.Summary.Cell>
+										</Table.Summary.Row>
+										<Table.Summary.Row>
+											<Table.Summary.Cell colSpan={4} index={1}>
+												ยอดรวมทั้งหมด
+											</Table.Summary.Cell>
+											<Table.Summary.Cell index={2}>
+												{totalAll}
+											</Table.Summary.Cell>
+											<Table.Summary.Cell index={3}>
+												บาท
+											</Table.Summary.Cell>
+										</Table.Summary.Row>
+									</>
+								)
+							}}
+						/>
+					</Col>
+					<Col span={24}>
+						{bill.bill === 1 && (
+							<Button
+								type="primary"
+								style={{ width: 200, height: 70 }}
+								onClick={showModal}>
+								<p style={{ fontSize: 30 }}>ชำระเงินสด</p>
+							</Button>
+						)}
+						{bill.bill === 2 && (
+							<Button
+								type="primary"
+								style={{ width: 200, height: 70 }}
+								onClick={showModal2}>
+								<p style={{ fontSize: 30 }}>ชำระเงินเชื่อ</p>
+							</Button>
+						)}
 
-				</Col>
-			</Row>
+					</Col>
+				</Row>
+			</div>
 
 			<Modal visible={isModalVisible} width={800} footer={[]} onCancel={handleCancel}>
 				<Divider style={{ fontSize: 30 }}>บิลเงินสด</Divider>

@@ -1,13 +1,10 @@
 import { Controller, Post, Body, Get, Patch, Param, Delete, Put, } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { HttpStatus, HttpException, Injectable, ConflictException, NotFoundException, } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Product } from './entities/product.entity';
 import { catchError, map, Observable, of } from 'rxjs';
 import { ApiTags } from '@nestjs/swagger';
-import { observableToBeFn } from 'rxjs/internal/testing/TestScheduler';
-
+import { UpdateProductDto } from './dto/update-product.dto';
 @ApiTags('Products')
 @Controller('products')
 export class ProductsController {
@@ -58,7 +55,12 @@ export class ProductsController {
     return this.productsService.updateOne(Number(id), product);
   }
 
-
+  @Put('')
+  updateByPayment(
+    @Body() product: UpdateProductDto,
+  ) {
+    return this.productsService.updateByPayment(product);
+  }
 
   // @Post()
   // create(@Body() createProductDto: CreateProductDto) {

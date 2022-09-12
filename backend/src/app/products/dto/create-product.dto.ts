@@ -9,7 +9,6 @@ import { Unit } from '@app/unit/entities/unit.entity';
 
 export class CreateProductDto {
 
-
   @IsNotEmpty()
   @ApiProperty()
   readonly id: number;
@@ -50,10 +49,5 @@ export class CreateProductDto {
   @IsNotEmpty()
   @ApiProperty()
   readonly product_companys_id: number;
-
-
-
-
-
 
 }

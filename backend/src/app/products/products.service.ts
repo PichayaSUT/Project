@@ -3,38 +3,24 @@ import {
   HttpStatus,
   HttpException,
   Injectable,
-  ConflictException,
-  NotFoundException,
   Inject,
 } from '@nestjs/common';
-import { Like, Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { Product } from './entities/product.entity';
-import { AuthService } from '../../auth/services/auth.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductCompanyService } from '@app/product-company/product-company.service';
 import { CodeService } from '@app/code/code.service';
-import { UnitService } from '@app/unit/unit.service';
-import { DetailService } from '@app/detail/detail.service';
 import {
-  catchError,
   from,
   map,
   Observable,
-  switchMap,
-  throwError,
-  find,
   forkJoin,
-  of,
 } from 'rxjs';
-import { resolve } from 'path/posix';
 import { InjectRepository } from '@nestjs/typeorm';
-import { OrderDetail } from '@app/order-detail/entities/order-detail.entity';
-import { number } from 'joi';
 
 @Injectable()
 export class ProductsService {
-
 
   constructor(
     @InjectRepository(Product)
@@ -58,7 +44,7 @@ export class ProductsService {
   */
 
   findOne(id: number): Observable<Product> {
-    return from(this.productRepository.createQueryBuilder("product").leftJoinAndSelect("product.code","code").where("code.jjCodeNumber = :id",{id}).getOne())
+    return from(this.productRepository.createQueryBuilder("product").leftJoinAndSelect("product.code", "code").where("code.jjCodeNumber = :id", { id }).getOne())
   }
 
   /* findAll(): Observable<Product[]> {
@@ -69,7 +55,7 @@ export class ProductsService {
     return from(this.productRepository.createQueryBuilder("product").where("product.name").getMany())
   }
   findName(name: string): Observable<Product[]> {
-    return from(this.productRepository.createQueryBuilder("product").leftJoinAndSelect("product.code","code").where("product.name like :name", { name: '%' + name + '%' }).getMany())
+    return from(this.productRepository.createQueryBuilder("product").leftJoinAndSelect("product.code", "code").where("product.name like :name", { name: '%' + name + '%' }).getMany())
   }
 
   deleteOne(id: number): Observable<any> {
@@ -129,6 +115,15 @@ export class ProductsService {
     );
   }
 
+  updateByPayment(product: UpdateProductDto): Promise<UpdateResult> {
+    console.log(product);
+    return this.productRepository
+      .createQueryBuilder()
+      .update(Product)
+      .set({ amount: () => "amount - " + product.quantity, })
+      .where("name = :name", { name: product.name })
+      .execute();
+  }
   /* findAll(): Promise<Privilege[]> {
     return this.privilegeRepository.find();
   } */
