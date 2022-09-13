@@ -8,9 +8,9 @@ import { Payment } from './entities/payment.entity';
 import { CustomerService } from '@app/customer/customer.service';
 import { Employee } from '@app/employee/entities/employee.entity';
 import { EmployeeService } from '@app/employee/employee.service';
-import { Customer } from '@app/customer/entities/customer.entity';
-import { PaymentInterface } from './interface/payment.interface';
 import * as fs from 'fs'
+import { Product } from '@app/products/entities/product.entity';
+import { ProductsService } from '@app/products/products.service';
 
 @Injectable()
 export class PaymentService {
@@ -23,6 +23,9 @@ export class PaymentService {
 
     @Inject(EmployeeService)
     private readonly employeeService: EmployeeService,
+
+    @Inject(ProductsService)
+    private readonly productService: ProductsService,
   ) { }
 
   createPaymentJson(data: SavePayment): string {
@@ -33,10 +36,11 @@ export class PaymentService {
   }
 
   create(data: SavePayment) {
-    console.log(data);
-    
     const customer = this.customerService.findOne(data.customer.phone)
     const employee = this.employeeService.findOneByEmail(data.employee.email)
+    for (let i = 0; i < data.list.length; i++) {
+      this.productService.updateByPayment(data.list[i])
+    }
     /* (): Observable<Employee> => {
       if (!(data.employee.email === undefined)) {
         console.log('start save database');
@@ -62,6 +66,7 @@ export class PaymentService {
         if (!(customerValue === null)) {
           newPayment.customer = customerValue;
         }
+        
         newPayment.id = data.paymentId;
         newPayment.discount = data.discount;
         newPayment.total = data.total;
@@ -69,7 +74,7 @@ export class PaymentService {
         newPayment.payment_type = data.paymentType;
         newPayment.status = data.paymentStatus;
         newPayment.payment_path = `D:/Project/data/json/${data.paymentId}.json`;
-        
+
         this.paymentRepository.save(newPayment).then((res) => {
           console.log(res);
           if (!res) {
@@ -82,7 +87,6 @@ export class PaymentService {
         return newPayment;
       })
     )
-
   }
 
   findAll(id: string): Observable<Payment[]> {

@@ -21,7 +21,7 @@ import { Modules } from 'src/auth/decorators/modules.decorator';
 import { ModulesAllowed } from './../../auth/models/role.enum';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 
-@ApiTags('employee')
+@ApiTags('Employee')
 @Controller('employee')
 @Modules(ModulesAllowed.EMPLOYEE)
 export class EmployeeController {

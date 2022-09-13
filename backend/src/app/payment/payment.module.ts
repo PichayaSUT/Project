@@ -6,10 +6,12 @@ import { Payment } from './entities/payment.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { CustomerModule } from '@app/customer/customer.module';
 import { EmployeeModule } from '@app/employee/employee.module';
+import { ProductsService } from '@app/products/products.service';
+import { ProductsModule } from '@app/products/products.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Payment]),
-  CustomerModule, EmployeeModule],
+  CustomerModule, EmployeeModule, ProductsModule],
   controllers: [PaymentController],
   providers: [PaymentService],
   exports: [PaymentService],

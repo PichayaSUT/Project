@@ -42,6 +42,7 @@ export interface DataType {
   key: React.Key,
   barcode: string,
   name: string,
+  amount: number,
   quantity: number,
   priceForPrice: number,
   priceSell: number,

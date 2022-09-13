@@ -9,6 +9,7 @@ export async function productID(api: API, count: number): Promise<DataType> {
 				key: count,
 				barcode: data.code.jjCodeNumber,
 				name: data.name,
+				amount: data.amount,
 				quantity: 1,
 				priceForPrice: data.price_sell,
 				priceSell: data.price_sell,
@@ -87,8 +88,12 @@ export async function searchCustomerPhone(api: API): Promise<SearchCustomer> {
 export async function savePaymentToJson(api: API): Promise<void> {
 	return new Promise(async (resolve, rejects) => {
 		try {
-			const res = await fetch(`${api.url}${api.path}${api.id}`, api.requestOptions)
-			const resSavePayment = await fetch(`${api.url}${api.path='payment'}${api.id}`, api.requestOptions)
+			// Create Json File
+			await fetch(`${api.url}${api.path}${api.id}`, api.requestOptions)
+			// Save to Database
+			await fetch(`${api.url}${api.path = 'payment'}${api.id}`, api.requestOptions)
+			// Update Customer
+			await fetch(``,api.requestOptions)
 			resolve()
 		} catch (error) {
 			console.log(error);

@@ -110,11 +110,16 @@ const SaleProduct = () => {
 		}
 	}
 
+	const getAmount = (key: any): number => {
+		return dataTable[key].amount
+	}
+
 	const ChangeNumber = (value: number, key: any): void => {
 		let newData: DataType = {
 			key: key,
 			barcode: dataTable[key].barcode,
 			name: dataTable[key].name,
+			amount: dataTable[key].amount,
 			quantity: value,
 			priceForPrice: dataTable[key].priceForPrice,
 			priceSell: dataTable[key].priceForPrice * value,
@@ -208,6 +213,7 @@ const SaleProduct = () => {
 			key: count,
 			barcode: data[key].barcode,
 			name: data[key].name,
+			amount: data[key].amount,
 			quantity: 1,
 			priceForPrice: data[key].priceSell,
 			priceSell: data[key].priceSell
@@ -389,7 +395,7 @@ const SaleProduct = () => {
 				<Space size="middle">
 					<InputNumber
 						min={1}
-						max={99}
+						max={getAmount(record.key)}
 						value={Quantity(record.key)}
 						defaultValue={1}
 						onChange={event => ChangeNumber(event, record.key)}
