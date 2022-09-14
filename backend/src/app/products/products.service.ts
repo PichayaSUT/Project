@@ -43,7 +43,7 @@ export class ProductsService {
   }
   */
 
-  findOne(id: number): Observable<Product> {
+  findOne(id: string): Observable<Product> {
     return from(this.productRepository.createQueryBuilder("product").leftJoinAndSelect("product.code", "code").where("code.jjCodeNumber = :id", { id }).getOne())
   }
 
@@ -116,7 +116,6 @@ export class ProductsService {
   }
 
   updateByPayment(product: UpdateProductDto): Promise<UpdateResult> {
-    console.log(product);
     return this.productRepository
       .createQueryBuilder()
       .update(Product)

@@ -6,6 +6,7 @@ import { Detail } from '@app/detail/entities/detail.entity';
 import { ProductCompany } from '@app/product-company/entities/product-company.entity';
 import { Code } from '@app/code/entities/code.entity';
 import { Unit } from '@app/unit/entities/unit.entity';
+import { PaymentList } from '@app/payment-list/entities/payment-list.entity';
 
 @Entity('product')
 export class Product extends BaseEntity {
@@ -53,7 +54,9 @@ export class Product extends BaseEntity {
     @ManyToOne(() => ProductCompany, (product_companys) => product_companys.products)
     product_companys: ProductCompany;
  
-
+  //-------------------------------------------------------------------
+    @OneToOne(() => PaymentList, (paymentList) => paymentList.product)
+    paymentList: PaymentList;
 
 
 }

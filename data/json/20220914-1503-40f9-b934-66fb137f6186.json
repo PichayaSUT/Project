@@ -1,0 +1,1 @@
+{"customer":{"name":"","phone":""},"employee":{"name":"","email":""},"paymentId":"20220914-1503-40f9-b934-66fb137f6186","list":[{"key":0,"barcode":"AAA","name":"aaa","amount":18,"quantity":1,"priceForPrice":200,"priceSell":200}],"total":200,"discount":0,"receive":"300","paymentStatus":"Y","paymentType":"C"}

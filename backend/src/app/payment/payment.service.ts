@@ -11,6 +11,8 @@ import { EmployeeService } from '@app/employee/employee.service';
 import * as fs from 'fs'
 import { Product } from '@app/products/entities/product.entity';
 import { ProductsService } from '@app/products/products.service';
+import { PaymentListService } from '@app/payment-list/payment-list.service';
+import { PaymentListCreate } from '@app/payment-list/dto/create-payment-list.dto';
 
 @Injectable()
 export class PaymentService {
@@ -26,13 +28,42 @@ export class PaymentService {
 
     @Inject(ProductsService)
     private readonly productService: ProductsService,
+
+    @Inject(PaymentListService)
+    private readonly paymentListService: PaymentListService,
   ) { }
 
   createPaymentJson(data: SavePayment): string {
-    console.log(data);
     fs.writeFileSync(`D:/Project/data/json/${data.paymentId}.json`, JSON.stringify(data))
     console.log(`create : ${data.paymentId}.json success`);
     return ""
+  }
+
+  createPaymentList(data: SavePayment) {
+    const id = data.paymentId
+    const list = data.list
+    const paymentId = from(this.paymentRepository
+      .createQueryBuilder("payment")
+      .where("payment.id = :id", { id })
+      .getOne())
+    const product = this.productService.findOne(list[0].barcode)
+    return forkJoin({
+      productValue: product,
+      paymentValue: paymentId,
+    }).pipe(
+      map(({ productValue, paymentValue }) => {
+        console.log('PaymentList');
+        const obj = {
+          paymentId: paymentValue,
+          productId: productValue,
+          quantity: list[0].quantity,
+          price_total: list[0].priceSell
+        }
+        this.paymentListService.create(obj)
+        return obj
+      })
+    )
+
   }
 
   create(data: SavePayment) {
@@ -66,7 +97,7 @@ export class PaymentService {
         if (!(customerValue === null)) {
           newPayment.customer = customerValue;
         }
-        
+
         newPayment.id = data.paymentId;
         newPayment.discount = data.discount;
         newPayment.total = data.total;
@@ -76,7 +107,6 @@ export class PaymentService {
         newPayment.payment_path = `D:/Project/data/json/${data.paymentId}.json`;
 
         this.paymentRepository.save(newPayment).then((res) => {
-          console.log(res);
           if (!res) {
             throw new HttpException(
               'can not save category',
@@ -89,8 +119,7 @@ export class PaymentService {
     )
   }
 
-  findAll(id: string): Observable<Payment[]> {
-
+  findAll(id: string): Observable<Payment> {
     return from(
       this.paymentRepository
         .createQueryBuilder("payment")
@@ -106,11 +135,11 @@ export class PaymentService {
           "payment.employee",
         ])
         .where("payment.id = :id", { id })
-        .getMany());
+        .getOne());
   }
 
   findOne(id: string) {
-    return ""
+    return ''//this.paymentRepository.createQueryBuilder()
   }
 
   update(id: number, updatePaymentDto: UpdatePaymentDto) {

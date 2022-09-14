@@ -1,10 +1,11 @@
 import { Employee } from './../../employee/entities/employee.entity';
-import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryColumn } from "typeorm";
 import { Customer } from '@app/customer/entities/customer.entity';
 import { BaseEntity } from '@common/BaseEntity';
+import { PaymentList } from '@app/payment-list/entities/payment-list.entity';
 
 @Entity('payment')
-export class Payment extends BaseEntity {
+export class Payment {
   @PrimaryColumn({ type: 'uuid'})
   id: string;
 
@@ -31,4 +32,11 @@ export class Payment extends BaseEntity {
 
   @ManyToOne(() => Customer, (customer) => customer.payments)
   customer: Customer
+
+  @OneToMany(() => PaymentList, (paymentList) => paymentList.payment)
+  paymentList : PaymentList[];
+
+  @CreateDateColumn({ nullable: true })
+  createdAt: Date;
+
 }

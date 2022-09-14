@@ -1,0 +1,27 @@
+{
+  "customer": {
+    "name": "",
+    "phone": ""
+  },
+  "employee": {
+    "name": "",
+    "email": ""
+  },
+  "paymentId": "20220914-1618-495c-b4c5-053b5e8c9138",
+  "list": [
+    {
+      "key": 0,
+      "barcode": "AAA",
+      "name": "aaa",
+      "amount": 6,
+      "quantity": 1,
+      "priceForPrice": 200,
+      "priceSell": 200
+    }
+  ],
+  "total": 200,
+  "discount": 0,
+  "receive": "300",
+  "paymentStatus": "Y",
+  "paymentType": "C"
+}

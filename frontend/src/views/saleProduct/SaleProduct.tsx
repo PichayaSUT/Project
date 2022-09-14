@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Card, Drawer, message, Result, Statistic, Image, InputNumber, SelectProps, Popconfirm } from 'antd'
 import { Input, Table, Space, Row, Col, Radio, Divider, Button, Modal, AutoComplete } from 'antd'
-import { CalendarOutlined, PlusOutlined, PrinterOutlined, SearchOutlined, ShoppingCartOutlined, SnippetsOutlined, UserOutlined } from '@ant-design/icons'
+import { ApiFilled, CalendarOutlined, PlusOutlined, PrinterOutlined, SearchOutlined, ShoppingCartOutlined, SnippetsOutlined, UserOutlined } from '@ant-design/icons'
 import { API, ApiWithBody, DataType, Discount, PaymentJson, SearchCustomer, TableMain, TableSearch } from './InterfaceSaleProducts'
 import { productID, savePaymentToJson, searchCustomerPhone, searchFromBarcode, searchFromName } from './API'
 import moment from 'moment'
@@ -26,6 +26,7 @@ const SaleProduct = () => {
 	})
 	const [visible, setVisible] = useState<boolean>(false)
 	const [data, setData] = useState<TableSearch>([])
+	const [barcode, setBarcode] = useState<string>('')
 	const [barcodeSearch, setBarcodeSearch] = useState<string>('')
 	const [options, setOptions] = useState<SelectProps<object>['options']>([])
 	const [searchButton, setSearchButton] = useState(0)
@@ -95,6 +96,7 @@ const SaleProduct = () => {
 			} else {
 				const res: DataType | void = await productID(fetchData, count)
 				checkBarcode(res)
+				setBarcode('')
 				message.success('เพิ่มสินค้าสำเร็จ')
 			}
 		} catch (error) {
@@ -647,6 +649,9 @@ const SaleProduct = () => {
 						<Input
 							placeholder="รหัสสินค้า"
 							size="large" type={"text"}
+							allowClear={true}
+							defaultValue={barcode}
+							onBlur={() => setBarcode('')}
 							onPressEnter={event => scanBarcode((event.target as HTMLInputElement).value)}
 						/>
 					</Col>

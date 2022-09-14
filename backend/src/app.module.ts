@@ -23,6 +23,7 @@ import { ProductStorageModule } from '@app/product-storage/product-storage.modul
 import { CategoryModule } from "@app/category/category.module"
 import { PaymentModule } from './app/payment/payment.module';
 import { CustomerModule } from './app/customer/customer.module';
+import { PaymentListModule } from './app/payment-list/payment-list.module';
 
 
 @Module({
@@ -54,7 +55,7 @@ import { CustomerModule } from './app/customer/customer.module';
     CategoryModule,
     PaymentModule,
     CustomerModule,
-   
+    PaymentListModule,
 
   ],
   controllers: [AppController],

@@ -17,5 +17,4 @@ export class Code extends BaseEntity {
     @OneToOne(() => Product, (product) => product.code)
     product: Product;
 
-
 }

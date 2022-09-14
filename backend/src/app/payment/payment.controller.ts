@@ -3,7 +3,6 @@ import { PaymentService } from './payment.service';
 import { CreatePaymentDto, SavePayment } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { PaymentInterface } from './interface/payment.interface';
 
 @ApiTags('payment')
 @Controller('payment')
@@ -12,7 +11,8 @@ export class PaymentController {
 
   @Post('/savePayment')
   createPaymentJson(@Body() data: SavePayment) {
-    return this.paymentService.createPaymentJson(data)
+    return this.paymentService.createPaymentList(data)
+    //return this.paymentService.createPaymentJson(data)
   }
 
   @Post()

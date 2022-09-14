@@ -88,10 +88,10 @@ export async function searchCustomerPhone(api: API): Promise<SearchCustomer> {
 export async function savePaymentToJson(api: API): Promise<void> {
 	return new Promise(async (resolve, rejects) => {
 		try {
-			// Create Json File
-			await fetch(`${api.url}${api.path}${api.id}`, api.requestOptions)
 			// Save to Database
 			await fetch(`${api.url}${api.path = 'payment'}${api.id}`, api.requestOptions)
+			// Create Json File
+			await fetch(`${api.url}${api.path}${api.id = 'payment/savePayment'}`, api.requestOptions)
 			// Update Customer
 			await fetch(``,api.requestOptions)
 			resolve()
