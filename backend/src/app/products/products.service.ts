@@ -47,6 +47,10 @@ export class ProductsService {
     return from(this.productRepository.createQueryBuilder("product").leftJoinAndSelect("product.code", "code").where("code.jjCodeNumber = :id", { id }).getOne())
   }
 
+  findOneNoCode(id: string){
+    return from(this.productRepository.createQueryBuilder("product").leftJoinAndSelect("product.code", "code").where("").getOne())
+  }
+
   /* findAll(): Observable<Product[]> {
     return from(this.productRepository.createQueryBuilder("product").leftJoinAndSelect("product.product_companys","product_companys").leftJoinAndSelect("product.code","code").getMany());
   } */

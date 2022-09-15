@@ -3,7 +3,7 @@ import { Card, Drawer, message, Result, Statistic, Image, InputNumber, SelectPro
 import { Input, Table, Space, Row, Col, Radio, Divider, Button, Modal, AutoComplete } from 'antd'
 import { ApiFilled, CalendarOutlined, PlusOutlined, PrinterOutlined, SearchOutlined, ShoppingCartOutlined, SnippetsOutlined, UserOutlined } from '@ant-design/icons'
 import { API, ApiWithBody, DataType, Discount, PaymentJson, SearchCustomer, TableMain, TableSearch } from './InterfaceSaleProducts'
-import { productID, savePaymentToJson, searchCustomerPhone, searchFromBarcode, searchFromName } from './API'
+import { productID, savePaymentToDataBase, savePaymentToJson, searchCustomerPhone, searchFromBarcode, searchFromName } from './API'
 import moment from 'moment'
 import { uuidGen } from './tool'
 //--------------------------------------------------------------------------------------------------------
@@ -308,7 +308,8 @@ const SaleProduct = () => {
 			fetchDataWithBody.path = 'payment/savePayment'
 			fetchDataWithBody.requestOptions.method = 'POST'
 			fetchDataWithBody.requestOptions.body = JSON.stringify(newPayment)
-			const response = await savePaymentToJson(fetchDataWithBody)
+			await savePaymentToDataBase(fetchDataWithBody)
+			await savePaymentToJson(fetchDataWithBody)
 		} catch (error) {
 			console.log(error);
 			message.error('ผิดพลาด')

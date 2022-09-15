@@ -42,31 +42,41 @@ export class PaymentService {
   createPaymentList(data: SavePayment) {
     const id = data.paymentId
     const list = data.list
-    const paymentId = from(this.paymentRepository
+    const paymentId = this.paymentRepository
       .createQueryBuilder("payment")
-      .where("payment.id = :id", { id })
-      .getOne())
+      .select([
+        "payment.id",
+        "payment.discount",
+        "payment.total",
+        "payment.receive",
+        "payment.payment_type",
+        "payment.status",
+        "payment.payment_path",
+        "payment.customer",
+        "payment.employee",
+      ])
+      .where(`payment.id = '${id}'`)
+      .getOne()
     const product = this.productService.findOne(list[0].barcode)
     return forkJoin({
       productValue: product,
       paymentValue: paymentId,
     }).pipe(
       map(({ productValue, paymentValue }) => {
-        console.log('PaymentList');
-        const obj = {
-          paymentId: paymentValue,
-          productId: productValue,
-          quantity: list[0].quantity,
-          price_total: list[0].priceSell
-        }
+        const obj = new PaymentListCreate()
+        obj.paymentId = paymentValue
+        obj.productId = productValue
+        obj.price_total = list[0].priceSell
+        obj.quantity = list[0].quantity
+        console.log(obj);
         this.paymentListService.create(obj)
         return obj
       })
     )
-
   }
 
   create(data: SavePayment) {
+    console.log(data.paymentId);
     const customer = this.customerService.findOne(data.customer.phone)
     const employee = this.employeeService.findOneByEmail(data.employee.email)
     for (let i = 0; i < data.list.length; i++) {

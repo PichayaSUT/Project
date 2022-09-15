@@ -15,11 +15,11 @@ export class PaymentListService {
     @InjectRepository(PaymentList)
     private readonly paymentListService: Repository<PaymentList>,
 
-/*     @Inject(ProductsService)
-    private readonly productService: ProductsService,
-
-    @Inject(Payment)
-    private readonly paymentService: PaymentService */
+    /*     @Inject(ProductsService)
+        private readonly productService: ProductsService,
+    
+        @Inject(Payment)
+        private readonly paymentService: PaymentService */
 
   ) { }
 
@@ -52,15 +52,14 @@ export class PaymentListService {
 
 
   create(data: PaymentListCreate) {
-    console.log(data);
     return this.paymentListService
-    .createQueryBuilder()
-    .insert()
-    .into(PaymentList)
-    .values([
-      data
-    ])
-    .execute();
+      .createQueryBuilder()
+      .insert()
+      .into(PaymentList)
+      .values([
+        { payment: data.paymentId, product: data.productId, price_total: data.price_total, quantity: data.quantity }
+      ])
+      .execute();
   }
 
   findAll() {
